@@ -368,7 +368,7 @@ Scenes.register('overworld', {
         }
         // --- ambient shadow at the foot of anything solid above ---
         const north = charAt(x, y - 1);
-        if (!SOLID.has(ch) && north !== null && SOLID.has(north) && north !== 't') {
+        if (!SOLID.has(ch) && north !== null && SOLID.has(north) && north !== 't' && north !== 'w') {
           ctx.fillStyle = 'rgba(12,8,26,0.3)'; ctx.fillRect(dx, dy, 16, 2);
           ctx.fillStyle = 'rgba(12,8,26,0.15)'; ctx.fillRect(dx, dy + 2, 16, 2);
         }

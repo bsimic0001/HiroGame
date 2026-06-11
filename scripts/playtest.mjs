@@ -193,14 +193,14 @@ await page.evaluate(() => import('/src/engine/scenes.js').then(async (m) => {
   m.Scenes.go('overworld');
 }));
 await page.waitForTimeout(400);
-await z(8, 160); // talk to Phisher King, advance b1_pre
+await z(12, 160); // talk to Phisher King, advance b1_pre
 for (let i = 0; i < 25 && (await sceneName()) === 'battle'; i++) {
   await untilState('menu', 10);
   if ((await sceneName()) !== 'battle') break;
   await z(1); // FIGHT
 }
 check('boss defeated, back in overworld', (await sceneName()) === 'overworld');
-await z(10, 160); // b1_win dialog (blade awarded)
+await z(14, 160); // b1_win dialog (blade awarded)
 const g7 = await game();
 check('Passkey Blade earned from boss', g7.gear.blade === true);
 check('boss1 flag set', g7.flags.boss1 === true);

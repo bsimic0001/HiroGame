@@ -7,7 +7,10 @@
 // X tech wall, z console, v vault rune, d door, S sign, b bridge,
 // B boulder, K counter, . void
 
-export const SOLID = new Set(['w', 't', 'u', 'n', 'l', 'W', 'o', 'R', 'C', 'y', 'X', 'z', 'B', 'K', 'S', '.']);
+export const SOLID = new Set([
+  'w', 't', 'u', 'n', 'l', 'W', 'o', 'R', 'C', 'y', 'X', 'z', 'B', 'K', 'S', '.',
+  'j', 'J', 'E', 'q', 'Q', 'Z', 'I', 'V', 'O', 'U', // decor: torch, brazier, banner, shelf, planter, crate, rack, sconce, statue, well
+]);
 
 export const TILE_FOR = {
   g: 'grass', f: 'flowers', i: 'tallgrass', p: 'path', a: 'sand', w: 'water',
@@ -17,13 +20,18 @@ export const TILE_FOR = {
   T: 'techFloor', r: 'techTrace', X: 'techWall', z: 'console',
   v: 'vaultRune', d: 'door', S: 'sign', D: 'caveMouth', h: 'stairs',
   b: 'bridge', B: 'boulder', K: 'counter', '.': 'void',
+  j: 'torchA', V: 'sconceA', J: 'brazierA', E: 'banner', q: 'bookshelf',
+  m: 'carpetRed', M: 'carpetPurple', Q: 'planter', Z: 'crate',
+  L: 'mushrooms', I: 'serverRack', O: 'statue', U: 'well', x: 'shellSand',
 };
 
 function norm(rows, border) {
   const w = Math.max(...rows.map((r) => r.length));
   const out = rows.map((r) => r.padEnd(w, border).split(''));
-  for (let x = 0; x < w; x++) { out[0][x] = border; out[out.length - 1][x] = border; }
-  for (let y = 0; y < out.length; y++) { out[y][0] = border; out[y][w - 1] = border; }
+  // seal the edges, but let intentional solid decor (torches, banners) stand
+  const seal = (cell) => (SOLID.has(cell) ? cell : border);
+  for (let x = 0; x < w; x++) { out[0][x] = seal(out[0][x]); out[out.length - 1][x] = seal(out[out.length - 1][x]); }
+  for (let y = 0; y < out.length; y++) { out[y][0] = seal(out[y][0]); out[y][w - 1] = seal(out[y][w - 1]); }
   return out;
 }
 
@@ -39,7 +47,7 @@ export const MAPS = {
       'tgWoWoWgggggggggggWoWoWggt',
       'tggfggggguugggggggggggfgt',
       'tggggggggggggggggggggggggt',
-      'tgggSgggggffggggggggKggggt',
+      'tgggSgggggffgggUggggKZgggt',
       'tgguggggglggggggglgggguggt',
       'tppppppppppppppppppppppppt',
       'tggggggggggggggggnnnnnnggt',
@@ -69,18 +77,18 @@ export const MAPS = {
     grid: norm([
       'wwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
       'wwaaaaaaawwwwwaaaaaaaaaawwwwww',
-      'waaaaaaaaaawwaaaaaaaaaaaaawwww',
+      'waaaaxaaaaawwaaaaaaaaaaaaawwww',
       'waaaaaaaaaaaaaaaaaawwaaaaaawww',
       'wwaaaawwaaaaaaaaaawwwwaaaaaaww',
       'wwaaawwwwaaaaaaaaaawwaaaaaaaww',
-      'waaaaawwaaaaaaaaaaaaaaaawwaaaw',
+      'waaaaawwaaaaaaaaaaxaaaaawwaaaw',
       'waaaaaaaaaaawwaaaaaaaaawwaaaaw',
       'paaaaaaaaaawwwwaaaaaaaaaaabbbb',
       'waaaaaaaaaaawwaaaaaaaaaaaabbbb',
       'waaaaSaaaaaaaaaaaaaaawwaaaaaaw',
-      'wwaaaaaaawwaaaaaaaaawwwwaaaaww',
+      'wwaaaaaaawwaaaxaaaaawwwwaaaaww',
       'wwwaaaaawwwwaaaaaaaawwaaaaawww',
-      'wwwwaaaaawwaaaaaaaaaaaaaaawwww',
+      'wwwwaaaxawwaaaaaaaaaaaaaaawwww',
       'wwwwwaaaaaaaaaawwaaaaaawwwwwww',
       'wwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
     ], 'w'),
@@ -104,14 +112,14 @@ export const MAPS = {
     name: 'THE ONBOARDING GATE', border: 'W', music: 'town', onEnter: 'ch2_intro',
     grid: norm([
       'WWWWWWWWWWWWWWWWWWWWWWWWWW',
-      'WppppppppppppppppppppppppW',
+      'WpppppppQppppppppQppppppW',
       'WpRRRRRppppppppppRRRRRpppW',
       'WpRRRRRppppppppppRRRRRpppW',
       'WpWoWoWppppppppppWoWoWpppW',
       'WppplpppppppppppppppplpppW',
       'WpppppppppWodWoppppppppppW',
-      'WpppppppppWoWoWppppppppppW',
-      'WppppppppppppppppppppKpppW',
+      'WpppppppppWEWEWppppppppppW',
+      'WppppppppppppppppppppKpZpW',
       'WppppppppppppppppppppppppW',
       'WpppSpppppppppppppppppppppW',
       'WppppppppppppppppppppppppW',
@@ -139,23 +147,23 @@ export const MAPS = {
 
   // ----------------------------------------------------- CH2: THE GATEHALL
   gatehall: {
-    name: 'THE GATEHALL', border: 'W', music: 'overworld',
+    name: 'THE GATEHALL', border: 'W', music: 'overworld', tint: 'rgba(255,150,60,0.05)',
     encounters: { rate: 0.06, groups: ['doppel', 'lazarus', 'doppel'] },
     grid: norm([
-      'WWWWWWWWWWWWWWWWWWWWWW',
-      'WFFFFFFFFFWWFFFFFFFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFW',
-      'WFFWWFFFFFFFFFFFWWFFFW',
-      'WFFWWFFFFFFFFFFFWWFFFW',
-      'WFFFFFFFFFWWFFFFFFFFFW',
-      'WFFFFFFFFFWWFFFFFFFFFW',
-      'WFFWWFFFFFFFFFFFWWFFFW',
-      'WFFWWFFFFFFFFFFFWWFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFW',
-      'WFFFFFFFFFWWFFFFFFFFFW',
-      'WFFFFFFFFFWWFFFFFFFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFW',
-      'WWWWWWWWWWWdWWWWWWWWWW',
+      'WEWWjWWEWWWWWEWWjWWEWW',
+      'WqqFFFFFFFqhFFFFFFFqqW',
+      'WFFFFFFFFFOmOFFFFFFFFW',
+      'WFFWWFFFFFFmFFFFFWWFFW',
+      'WFFWWFFFFFFmFFFFFWWFFW',
+      'WFFFFFFFFFFmFFFFFFFFFW',
+      'WFJFFFFFFFFmFFFFFFFJFW',
+      'WFFWWFFFFFFmFFFFFWWFFW',
+      'WFFWWFFFFFFmFFFFFWWFFW',
+      'WFFFFFFFFFFmFFFFFFFFFW',
+      'WFJFFFFFFFFmFFFFFFFJFW',
+      'WFFWWFFFFFFmFFFFFWWFFW',
+      'WFFFFFFFFFFmFFFFFFFFFW',
+      'WWWWjWWWWWWdWWWWWWjWWW',
     ], 'W'),
     npcs: [
       {
@@ -172,14 +180,14 @@ export const MAPS = {
 
   // ---------------------------------------------------- CH3: HELP DESK KEEP
   keep: {
-    name: 'HELP DESK KEEP', border: 'W', music: 'town', onEnter: 'ch3_intro',
+    name: 'HELP DESK KEEP', border: 'W', music: 'town', tint: 'rgba(255,170,80,0.04)', onEnter: 'ch3_intro',
     grid: norm([
-      'WWWWWWWWWWWWWWWWWWWWWWWWWW',
-      'WFFFFFFFFFFFFFFFFFFFFFFFFW',
-      'WFFKKKKKFFFFFFFFFKKKKKFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFFFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFFFFFW',
-      'WFFFFFFFFFFFFFFFFFFFFFFFFW',
+      'WWjWWEWWWWWWjWWWWWEWWWjWWW',
+      'WqqFFFFFFFFFFFFFFFFFFFFqqW',
+      'WFZKKKKKFFFmmmmFFKKKKKZFFW',
+      'WFFFFFFFFFFmmmmFFFFFFFFFFW',
+      'WFFFFFFFFFFmmmmFFFFFFFFFFW',
+      'WFJFFFFFFFFmmmmFFFFFFFJFFW',
       'WWWWWWWWWWWFFFFWWWWWWWWWWW',
       'WggugggggggpppgggggguggggW',
       'WggggggggglppplggggggggggW',
@@ -207,23 +215,23 @@ export const MAPS = {
 
   // ---------------------------------------------------- CH3: RESET CAVERNS
   caverns: {
-    name: 'THE RESET CAVERNS', border: 'C', music: 'overworld',
+    name: 'THE RESET CAVERNS', border: 'C', music: 'overworld', tint: 'rgba(30,15,75,0.16)',
     encounters: { rate: 0.06, groups: ['vishimp', 'pushbomber', 'vishimp', 'pushbomber'] },
     grid: norm([
       'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
-      'CcyccCCCCCcccccccCCCCCccyccccC',
-      'CccccccCCCcccccccccCCCcccccccC',
+      'CcyccCCCCCcccccccCCCCCccyccJcC',
+      'CccccccCCCcLcccccccCCCcccccccC',
       'CCCccccccccccCCCcccccccCCCcccC',
-      'CCCCCcccCCCccCCCCCcccccccccccC',
-      'CccccccCCCCCccccCCCCCcccCCCccC',
+      'CCCCCcccCCCccCCCCCcccLcccccccC',
+      'CJcccccCCCCCccccCCCCCcccCCCccC',
       'CccCCCcycccccccccccCCCcccccccC',
       'CccCCCcccCCCCCcccccccccccCCCcC',
-      'CcccccccCCCCCCCcccCCCcccccccC',
+      'CcccccccCCCCCCCcccCCCccLccccC',
       'CCCcccccccCCCcccccCCCcccCCCccC',
-      'CCCCCcccccccccccccccccccCCCCcC',
+      'CCCCCcccLcccccccccccccccCCCCcC',
       'CcccccccCCCcccCCCCCccccccccccC',
       'CccCCCcccccccccCCCccyccCCCcccC',
-      'CcccccccccCCCccccccccccccccccC',
+      'CcccccccccCCCcccccccLccccccccC',
       'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
     ], 'C'),
     npcs: [
@@ -241,10 +249,10 @@ export const MAPS = {
 
   // ------------------------------------------------- CH4: ENDPOINT FRONTIER
   frontier: {
-    name: 'THE ENDPOINT FRONTIER', border: 'X', music: 'overworld', onEnter: 'ch4_intro',
+    name: 'THE ENDPOINT FRONTIER', border: 'X', music: 'overworld', tint: 'rgba(20,30,90,0.10)', onEnter: 'ch4_intro',
     encounters: { rate: 0.06, groups: ['keylogger', 'tokenthief', 'simshift', 'stufferzombie'] },
     grid: norm([
-      'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+      'XXXXVXXXXXXXXVXXXXXXXXVXXXXXXX',
       'XTTTTTTXXTTTTTTTTTXXTTTTTTTTTX',
       'XTTrTTTTTTTTTXXTTTTrTTTXXTTTTX',
       'XTTXXTTTzXXTTXXTTTXXTTTTTTTTTX',
@@ -256,8 +264,8 @@ export const MAPS = {
       'XTTXXTTTTXXTTTTTTTTTTTTXXTTTTX',
       'XTTXXTTXXXXTTTXXTTTTXXTTTTTTTX',
       'XTTTTTTXXTTTTzXXTTTTXXTTXXTTTX',
-      'XTTTTTTTTTTTTTTTTTTTTTTTXXTTTX',
-      'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+      'XTTTITTTTTTTTTTTTTTTITTTXXTTTX',
+      'XXXXXXXXVXXXXXXXXXVXXXXXXXXXXX',
     ], 'X'),
     npcs: [
       { id: 'engineer', x: 3, y: 6, sprite: 'villagerTeal', gear: 'visor', flag: 'got_visor',
@@ -278,18 +286,18 @@ export const MAPS = {
 
   // ----------------------------------------------------- CH5: THE CAPITAL
   capital: {
-    name: 'IDENTIA CAPITAL', border: 'X', music: 'town', onEnter: 'ch5_intro',
+    name: 'IDENTIA CAPITAL', border: 'X', music: 'town', tint: 'rgba(120,70,255,0.06)', onEnter: 'ch5_intro',
     grid: norm([
-      'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+      'XXXXVXXXXXXXXXXXXXXXXVXXXX',
       'XTTTTTTTTTTTXXTTTTTTTTTTTX',
-      'XTXXXXTTTTTTXXTTTTTXXXXTTX',
+      'XTXVXXTTTTTTXXTTTTTXXVXTTX',
       'XTXXXXTTTTTTddTTTTTXXXXTTX',
-      'XTTTTTTTTTTTrTTTTTTTTTTTTX',
-      'XTTTTTTTTTTTTTTTTTTzTTKTTTX',
-      'XTTTTlTTTTTTTTTTTTTTlTTTTX',
-      'XTTSTTTTTTTTTTTTTTTTTTTTTX',
-      'XTTTTTTTTTTTTTTTTTTTTTTTTX',
-      'XTTTTTTTTrTTTTTTTrTTTTTTTX',
+      'XTTTTTTTTTTTMMTTTTTTTTTTTX',
+      'XTTTTTTTTTTTMMTTTTTzTTKTTTX',
+      'XTTTTlTTTTTTMMTTTTTTlTTTTX',
+      'XTTSTTTTTTTTMMTTTTTTTTTTTX',
+      'XTTTTTTTTTTTMMTTTTTTTTTTTX',
+      'XTTQTTTTTrTTTTTTTrTTTTQTTX',
       'XTTTTTTTTTTTTTTTTTTTTTTTTX',
       'XTTlTTTTTTTTTTTTTTTTTlTTTX',
       'pTTTTTTTTTTTTTTTTTTTTTTTTX',
@@ -315,24 +323,24 @@ export const MAPS = {
 
   // ----------------------------------------------------- FINALE: THE VAULT
   vault: {
-    name: 'VAULT OF SHARED SECRETS', border: 'X', music: 'vault', onEnter: 'vault_intro',
+    name: 'VAULT OF SHARED SECRETS', border: 'X', music: 'vault', tint: 'rgba(90,40,170,0.10)', onEnter: 'vault_intro',
     encounters: { rate: 0.07, groups: ['rogueagent', 'rogueagent'] },
     grid: norm([
-      'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+      'XXXXXVXXXXXXXXXXXXXXVXXXXX',
       'XvvvvvvvvvvvvvvvvvvvvvvvvX',
-      'XvTTTTTTTTTTTTTTTTTTTTTTvX',
-      'XvTTXXXXTTTTTTTTTTXXXXTTvX',
-      'XvTTXXXXTTvvvvvvTTXXXXTTvX',
-      'XvTTTTTTTTvTTTTvTTTTTTTTvX',
-      'XvTTTTTTTTvTTTTvTTTTTTTTvX',
-      'XvTTXXTTTTvvTTvvTTTTXXTTvX',
-      'XvTTXXTTTTrTTTTTTTTTXXTTvX',
-      'XvTTTTTTXXTTTTTTXXTTTTTTvX',
-      'XvTTTTTTXXTTrTTTXXTTTTTTvX',
-      'XvTTTTrTTTTTTTTTTTTrTTTTvX',
-      'XvTTTTTTTTTTTTTTTTTTTTTTvX',
-      'XvvvvvvvvvTTTTTTvvvvvvvvvX',
-      'XTTTTTTTTTTTTTTTTTTTTTTTTX',
+      'XvTTTTTTTTTTMMTTTTTTTTTTvX',
+      'XvTTXVXXTTTTMMTTTTXXVXTTvX',
+      'XvTTXXXXTTvvMMvvTTXXXXTTvX',
+      'XvTTTTTTTTvMMMMvTTTTTTTTvX',
+      'XvTTTTTTTTvMMMMvTTTTTTTTvX',
+      'XvTTXXTTTTvvMMvvTTTTXXTTvX',
+      'XvTTXXTTTTrTMMTTTTTTXXTTvX',
+      'XvTTTTTTXXTTMMTTXXTTTTTTvX',
+      'XvTTTTTTXXTTMMTTXXTTTTTTvX',
+      'XvTTTTrTTTTTMMTTTTTrTTTTvX',
+      'XvTTTTTTTTTTMMTTTTTTTTTTvX',
+      'XvvvvvvvvvTTMMTTvvvvvvvvvX',
+      'XTTTTTTTTTTTMMTTTTTTTTTTTX',
       'XTTTTTTTTTTTdTTTTTTTTTTTTX',
       'XXXXXXXXXXXXXXXXXXXXXXXXXX',
     ], 'X'),

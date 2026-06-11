@@ -632,19 +632,20 @@ Scenes.register('battle', {
     const hx = 36 + (hshake > 0 ? rnd(5) - 2 : 0);
     ctx.drawImage(hframe, hx, 92, hframe.width * 2, hframe.height * 2);
 
-    // enemy panel
-    panel(ctx, 4, 4, 148, 26);
+    // enemy panel (wide enough that long boss names never hit the badge)
+    panel(ctx, 4, 4, 168, 26);
     drawText(ctx, enemy.name, 9, 8, '#ffffff');
-    if (isBoss) drawText(ctx, 'BOSS', 124, 8, '#ffd84d');
-    const ew = Math.max(0, Math.round((enemy.hp / enemy.maxHp) * 128));
-    ctx.fillStyle = '#241d36'; ctx.fillRect(8, 19, 130, 7);
-    ctx.fillStyle = '#3a3544'; ctx.fillRect(9, 20, 128, 5);
+    if (isBoss) drawText(ctx, 'BOSS', 142, 8, '#ffd84d');
+    const barW = 148;
+    const ew = Math.max(0, Math.round((enemy.hp / enemy.maxHp) * barW));
+    ctx.fillStyle = '#241d36'; ctx.fillRect(8, 19, barW + 2, 7);
+    ctx.fillStyle = '#3a3544'; ctx.fillRect(9, 20, barW, 5);
     ctx.fillStyle = enemy.hp / enemy.maxHp > 0.3 ? '#3fae57' : '#e44b4b';
     ctx.fillRect(9, 20, ew, 5);
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.fillRect(9, 20, ew, 1);
     ctx.fillStyle = '#14102a';
-    for (const q of [0.25, 0.5, 0.75]) ctx.fillRect(9 + Math.round(128 * q), 20, 1, 5);
+    for (const q of [0.25, 0.5, 0.75]) ctx.fillRect(9 + Math.round(barW * q), 20, 1, 5);
 
     // player panel with portrait
     panel(ctx, 140, 86, 96, 40);

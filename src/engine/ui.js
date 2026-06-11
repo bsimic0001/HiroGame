@@ -104,7 +104,11 @@ export class Menu {
     this.items.forEach((it, idx) => {
       const ly = y + 7 + idx * LINE_H;
       if (idx === this.i) drawText(ctx, '▶', x + 5, ly, '#19d3c5');
-      drawText(ctx, it.label, x + 13, ly, idx === this.i ? '#ffffff' : '#b8b3d6');
+      // labels never collide with right-aligned notes: truncate to the gap
+      const noteW = it.note ? it.note.length * CHAR_W + 4 : 0;
+      const maxChars = Math.floor((w - 13 - 6 - noteW) / CHAR_W);
+      const label = it.label.length > maxChars ? it.label.slice(0, Math.max(1, maxChars - 1)) + '.' : it.label;
+      drawText(ctx, label, x + 13, ly, idx === this.i ? '#ffffff' : '#b8b3d6');
       if (it.note) drawText(ctx, it.note, x + w - 6 - it.note.length * CHAR_W, ly, '#8d86b8');
     });
     return h;

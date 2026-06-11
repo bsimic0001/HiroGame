@@ -5,7 +5,7 @@ import { Game } from '../engine/state.js';
 import { drawText, drawTextCentered } from '../engine/font.js';
 import { Dialog, Menu, panel } from '../engine/ui.js';
 import { MAPS, SOLID, TILE_FOR } from '../data/maps.js';
-import { TILES, TILE } from '../art/tiles.js';
+import { TILES, TILE, OVERLAYS } from '../art/tiles.js';
 import { HIRO, NPCS } from '../art/sprites.js';
 import { ENEMY_ART } from '../art/sprites.js';
 import { getDialog } from '../data/script.js';
@@ -327,6 +327,8 @@ Scenes.register('overworld', {
     const x0 = Math.max(0, Math.floor(camX / TILE)), x1 = Math.min(gw2 - 1, Math.ceil((camX + W) / TILE));
     const y0 = Math.max(0, Math.floor(camY / TILE)), y1 = Math.min(gh2 - 1, Math.ceil((camY + H) / TILE));
     const waterFrame = Math.floor(animT * 2) % 2 === 0 ? 'waterA' : 'waterB';
+    const flameFrame = Math.floor(animT * 5) % 2 === 0 ? 'A' : 'B';
+    const lights = []; // collected glow sources for the lighting pass
     // out-of-bounds reads return the same char, so map borders stay seamless
     const charAt = (x, y) => (x < 0 || y < 0 || x >= gw2 || y >= gh2) ? null : map.grid[y][x];
     const GRASSY = new Set(['g', 'f', 'i', 't', 'u', 'n']);
@@ -335,13 +337,49 @@ Scenes.register('overworld', {
         const ch = map.grid[y][x];
         let tileName = TILE_FOR[ch] || 'void';
         if (ch === 'w') tileName = waterFrame;
+        if (ch === 'j') tileName = 'torch' + flameFrame;
+        if (ch === 'V') tileName = 'sconce' + flameFrame;
+        if (ch === 'J') tileName = 'brazier' + flameFrame;
+        if (ch === 'd' && map.border === 'X') tileName = 'doorTech'; // tech cities get tech doors
         if (ch === 't') {
           const v = (x * 7 + y * 13) % 5;
           if (v === 1) tileName = 'treePine';
           else if (v === 3) tileName = 'treeBlossom';
         }
         const dx = x * TILE - camX, dy = y * TILE - camY;
-        ctx.drawImage(TILES[tileName], dx, dy);
+        // signs/lamps/planters sit on whatever ground surrounds them
+        const DECOR_OVERLAY = { S: 'sign', l: 'lamp', Q: 'planter' };
+        if (DECOR_OVERLAY[ch]) {
+          const GROUNDS = new Set(['g', 'f', 'i', 'p', 'a', 'F', 'c', 'T', 'r', 'v', 'm', 'M', 'x', 'b']);
+          const near = [charAt(x, y + 1), charAt(x - 1, y), charAt(x + 1, y), charAt(x, y - 1)]
+            .find((n) => n && GROUNDS.has(n));
+          let baseName = TILE_FOR[near || 'F'] || 'floor';
+          ctx.drawImage(TILES[baseName], dx, dy);
+          ctx.drawImage(OVERLAYS[DECOR_OVERLAY[ch]], dx, dy);
+        } else {
+          ctx.drawImage(TILES[tileName], dx, dy);
+        }
+
+        // collect light sources for the glow pass
+        if (ch === 'j' || ch === 'J') lights.push({ x: dx + 7, y: dy + 6, r: 22, c: [255, 166, 70], p: x * 13 + y * 7 });
+        else if (ch === 'V') lights.push({ x: dx + 7, y: dy + 6, r: 20, c: [150, 100, 255], p: x * 13 + y * 7 });
+        else if (ch === 'l') lights.push({ x: dx + 7, y: dy + 4, r: 18, c: [255, 220, 130], p: x * 13 + y * 7 });
+        else if (ch === 'L') lights.push({ x: dx + 6, y: dy + 10, r: 14, c: [120, 220, 255], p: x * 13 + y * 7 });
+        else if (ch === 'y') lights.push({ x: dx + 7, y: dy + 9, r: 14, c: [165, 120, 255], p: x * 13 + y * 7 });
+        else if (ch === 'o') lights.push({ x: dx + 8, y: dy + 8, r: 12, c: [255, 220, 130], p: x * 13 + y * 7 });
+
+        // carpet edge trim (gold fringe wherever carpet meets other floor)
+        if (ch === 'm' || ch === 'M') {
+          const isCarpet = (xx, yy) => { const n = charAt(xx, yy); return n === 'm' || n === 'M'; };
+          ctx.fillStyle = '#d8a437';
+          if (!isCarpet(x, y - 1)) ctx.fillRect(dx, dy, 16, 1);
+          if (!isCarpet(x, y + 1)) ctx.fillRect(dx, dy + 15, 16, 1);
+          if (!isCarpet(x - 1, y)) ctx.fillRect(dx, dy, 1, 16);
+          if (!isCarpet(x + 1, y)) ctx.fillRect(dx + 15, dy, 1, 16);
+          ctx.fillStyle = '#f2c66a';
+          if (!isCarpet(x, y - 1)) for (let f = 2; f < 15; f += 4) ctx.fillRect(dx + f, dy, 1, 1);
+          if (!isCarpet(x, y + 1)) for (let f = 2; f < 15; f += 4) ctx.fillRect(dx + f, dy + 15, 1, 1);
+        }
 
         // --- water shore borders (sand lip + foam facing any land) ---
         if (ch === 'w') {
@@ -411,6 +449,27 @@ Scenes.register('overworld', {
     });
     drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
+    // --- lighting pass: warm pulsing pools around every flame/glow source ---
+    if (lights.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (const li of lights) {
+        const flick = 0.5 + Math.sin(animT * 6 + li.p) * 0.08 + Math.sin(animT * 13 + li.p * 2) * 0.05;
+        const rad = li.r * (1 + Math.sin(animT * 5 + li.p) * 0.06);
+        const g = ctx.createRadialGradient(li.x, li.y, 1, li.x, li.y, rad);
+        g.addColorStop(0, `rgba(${li.c[0]},${li.c[1]},${li.c[2]},${0.32 * flick})`);
+        g.addColorStop(0.5, `rgba(${li.c[0]},${li.c[1]},${li.c[2]},${0.14 * flick})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(li.x - rad, li.y - rad, rad * 2, rad * 2);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    // --- ambient color grade ---
+    if (map.tint) {
+      ctx.fillStyle = map.tint;
+      ctx.fillRect(0, 0, W, H);
+    }
+
     // --- portal markers: every exit gets a pulsing arrow (or a lock) ---
     for (const p of map.portals || []) {
       const sx = p.x * TILE - camX, sy = p.y * TILE - camY;
@@ -464,12 +523,12 @@ Scenes.register('overworld', {
 
     if (mode === 'pause') pauseMenu.draw(ctx, 130, 14, 104);
     if (mode === 'items') {
-      itemMenu.draw(ctx, 110, 14, 124);
-      drawTextCentered(ctx, `GOLD: ${Game.s.gold}`, 172, 8, '#ffd84d');
+      itemMenu.draw(ctx, 84, 14, 150);
+      drawTextCentered(ctx, `GOLD: ${Game.s.gold}`, 159, 6, '#ffd84d');
     }
     if (mode === 'shop') {
-      shopMenu.draw(ctx, 100, 14, 134);
-      drawTextCentered(ctx, `GOLD: ${Game.s.gold}`, 167, 8, '#ffd84d');
+      shopMenu.draw(ctx, 84, 14, 150);
+      drawTextCentered(ctx, `GOLD: ${Game.s.gold}`, 159, 6, '#ffd84d');
     }
     if (mode === 'status') drawStatus(ctx);
     if (dialog) dialog.draw(ctx, W, H);

@@ -422,6 +422,26 @@ export const TILES = {
       'kkkkkkkkkk',
     ], 3, 2);
   }),
+  doorTech: tile((c) => {
+    c.fillStyle = '#2a2148'; c.fillRect(0, 0, 16, 16); // frame
+    c.fillStyle = '#6a3df0'; c.fillRect(1, 0, 14, 1);
+    overlay(c, [
+      'kkkkkkkkkkkk',
+      'kMmmmmmmmmMk',
+      'kMmmmmmmmmMk',
+      'kMmmkkkkmmMk',
+      'kMmmkttkmmMk',
+      'kMmmkkkkmmMk',
+      'kMmmmmmmmmMk',
+      'kMmmmmmmmmMk',
+      'kMmmmmmtkmMk',
+      'kMmmmmmkzkMk',
+      'kMmmmmmtkmMk',
+      'kMmmmmmmmmMk',
+      'kMmmmmmmmmMk',
+      'kkkkkkkkkkkk',
+    ], 2, 2);
+  }),
   sign: tile((c, r) => {
     paintGrass(c, r);
     overlay(c, [
@@ -474,4 +494,312 @@ export const TILES = {
     c.fillStyle = '#0c0a14'; c.fillRect(0, 0, 16, 16);
     c.fillStyle = '#140f22'; c.fillRect(0, 0, 8, 8); c.fillRect(8, 8, 8, 8);
   }),
+
+  // ------------------------------------------------ decor & light sources
+  torchA: tile((c, r) => {
+    paintWall(c, r);
+    overlay(c, [
+      '......yy........',
+      '.....yyyy.......',
+      '....yyooyy......',
+      '....yoIIoy......',
+      '.....kIIk.......',
+      '.....kMMk.......',
+      '......MM........',
+      '......MM........',
+      '.....kMMk.......',
+      '....kMmmMk......',
+    ], 0, 2);
+  }, 201),
+  torchB: tile((c, r) => {
+    paintWall(c, r);
+    overlay(c, [
+      '.....yy.........',
+      '....yyyy.y......',
+      '....yooyyy......',
+      '....yoIIoy......',
+      '.....kIIk.......',
+      '.....kMMk.......',
+      '......MM........',
+      '......MM........',
+      '.....kMMk.......',
+      '....kMmmMk......',
+    ], 0, 2);
+  }, 203),
+  sconceA: tile((c) => {
+    c.fillStyle = '#2a2148'; c.fillRect(0, 0, 16, 16);
+    c.fillStyle = '#16102c'; c.fillRect(0, 12, 16, 4);
+    overlay(c, [
+      '......vv........',
+      '.....vvzv.......',
+      '....vVzzVv......',
+      '....vVzzVv......',
+      '.....kVVk.......',
+      '.....kMMk.......',
+      '......MM........',
+      '.....kMMk.......',
+      '....kMmmMk......',
+    ], 0, 2);
+  }),
+  sconceB: tile((c) => {
+    c.fillStyle = '#2a2148'; c.fillRect(0, 0, 16, 16);
+    c.fillStyle = '#16102c'; c.fillRect(0, 12, 16, 4);
+    overlay(c, [
+      '.....vv.........',
+      '....vzvv.v......',
+      '....vVzzVv......',
+      '....vVzzVv......',
+      '.....kVVk.......',
+      '.....kMMk.......',
+      '......MM........',
+      '.....kMMk.......',
+      '....kMmmMk......',
+    ], 0, 2);
+  }),
+  brazierA: tile((c) => {
+    c.fillStyle = '#1c1626'; c.fillRect(0, 12, 16, 4); // plinth base, floor-agnostic
+    overlay(c, [
+      '......yy........',
+      '.....yyyy.......',
+      '....yyooyy......',
+      '...yyoIIoyy.....',
+      '....yoooyy......',
+      '...kmmmmmmk.....',
+      '..kmMMMMMMmk....',
+      '...kkMMMMkk.....',
+      '.....kMMk.......',
+      '....kMMMMk......',
+      '..kkMMMMMMkk....',
+      '.kmmmmmmmmmmk...',
+      '.kkkkkkkkkkkk...',
+    ], 1, 2);
+  }),
+  brazierB: tile((c) => {
+    c.fillStyle = '#1c1626'; c.fillRect(0, 12, 16, 4);
+    overlay(c, [
+      '.....yy..y......',
+      '....yyyyyy......',
+      '....yooyyy......',
+      '...yyoIIoy......',
+      '....yyoooy......',
+      '...kmmmmmmk.....',
+      '..kmMMMMMMmk....',
+      '...kkMMMMkk.....',
+      '.....kMMk.......',
+      '....kMMMMk......',
+      '..kkMMMMMMkk....',
+      '.kmmmmmmmmmmk...',
+      '.kkkkkkkkkkkk...',
+    ], 1, 2);
+  }),
+  banner: tile((c, r) => {
+    paintWall(c, r);
+    overlay(c, [
+      'kkkkkkkkkk',
+      'kyPPPPPPyk',
+      '.kPvPPvPk.',
+      '.kPPppPPk.',
+      '.kPptTpPk.',
+      '.kPptTpPk.',
+      '.kPPttPPk.',
+      '.kPPppPPk.',
+      '.kPvPPvPk.',
+      '..kPPPPk..',
+      '...kPPk...',
+      '....kk....',
+    ], 3, 1);
+  }, 207),
+  bookshelf: tile((c) => {
+    overlay(c, [
+      'kkkkkkkkkkkkkkkk',
+      'kNYYYYYYYYYYYYNk',
+      'kNrgbvyrtbgrvyNk',
+      'kNrgbvyrtbgrvyNk',
+      'kNkkkkkkkkkkkkNk',
+      'kNYYYYYYYYYYYYNk',
+      'kNbtrygvbrytgbNk',
+      'kNbtrygvbrytgbNk',
+      'kNkkkkkkkkkkkkNk',
+      'kNYYYYYYYYYYYYNk',
+      'kNvyrgtbyvrgbtNk',
+      'kNvyrgtbyvrgbtNk',
+      'kNkkkkkkkkkkkkNk',
+      'kNNNNNNNNNNNNNNk',
+      'kkkkkkkkkkkkkkkk',
+      'kDDDDDDDDDDDDDDk',
+    ]);
+  }),
+  carpetRed: tile((c, r) => {
+    c.fillStyle = '#a8333f'; c.fillRect(0, 0, 16, 16);
+    speckle(c, r, '#8f2a35', 10);
+    speckle(c, r, '#bf4450', 6);
+  }, 211),
+  carpetPurple: tile((c, r) => {
+    c.fillStyle = '#5c33d6'; c.fillRect(0, 0, 16, 16);
+    speckle(c, r, '#4a28b0', 10);
+    speckle(c, r, '#7d52f5', 6);
+  }, 213),
+  planter: tile((c, r) => {
+    paintPath(c, r);
+    overlay(c, [
+      '..f.y..f..y.f...',
+      '.fyfyffyfyfyff..',
+      '.kgggggggggggk..',
+      'kmcccccccccccmk.',
+      'kmcccccccccccmk.',
+      'kmmmmmmmmmmmmmk.',
+      '.kkkkkkkkkkkkk..',
+    ], 0, 6);
+  }, 217),
+  crate: tile((c) => {
+    overlay(c, [
+      'kkkkkkkkkkkkkkkk',
+      'kYYYYYYYYYYYYYYk',
+      'kYnnnnnnnnnnnnYk',
+      'kYnYYYYYYYYYYnYk',
+      'kYnYkYYYYYYkYnYk',
+      'kYnYYkYYYYkYYnYk',
+      'kYnYYYkYYkYYYnYk',
+      'kYnYYYYkkYYYYnYk',
+      'kYnYYYkYYkYYYnYk',
+      'kYnYYkYYYYkYYnYk',
+      'kYnYkYYYYYYkYnYk',
+      'kYnnnnnnnnnnnnYk',
+      'kYYYYYYYYYYYYYYk',
+      'kkkkkkkkkkkkkkkk',
+      'kDDDDDDDDDDDDDDk',
+      'kkkkkkkkkkkkkkkk',
+    ]);
+  }),
+  mushrooms: tile((c, r) => {
+    paintCaveFloor(c, r);
+    overlay(c, [
+      '...kk...........',
+      '..kzzk....kk....',
+      '.kzzzzk..kzbk...',
+      '.kzbzzk..kzzk...',
+      '..kmmk....kmk...',
+      '..kmmk...kmmk...',
+      'kk....kk........',
+      'kzzk.kzzbk......',
+      'kzbk.kzzzk......',
+      '.km...kmk.......',
+    ], 1, 5);
+  }, 219),
+  serverRack: tile((c) => {
+    paintTechFloor(c);
+    overlay(c, [
+      '.kkkkkkkkkkkk...',
+      '.kMmmmmmmmmMk...',
+      '.kMtkmmmmrkMk...',
+      '.kMkkkkkkkkMk...',
+      '.kMmmmmmmmmMk...',
+      '.kMrkmmmmtkMk...',
+      '.kMkkkkkkkkMk...',
+      '.kMmmmmmmmmMk...',
+      '.kMtkmmmmtkMk...',
+      '.kMkkkkkkkkMk...',
+      '.kMmmmmmmmmMk...',
+      '.kMrkmmmmrkMk...',
+      '.kkkkkkkkkkkk...',
+      '.kDDDDDDDDDDk...',
+    ], 1, 1);
+  }),
+  statue: tile((c) => {
+    overlay(c, [
+      '......mm........',
+      '...m.mmmm.m.....',
+      '..mmmmmmmmmm....',
+      '..mMmmmmmmMm....',
+      '..mmmmmmmmmm....',
+      '...mmmMmmmm.....',
+      '..mmmmmmmmm.....',
+      '.kmmmmmmmmmk....',
+      '.kmMMmmmMMmk....',
+      '..kmmmmmmmk.....',
+      '..kcccccccck....',
+      '.kcccccccccck...',
+      '.kMMMMMMMMMMk...',
+      '.kcccccccccck...',
+      'kkkkkkkkkkkkkk..',
+      'kDDDDDDDDDDDDk..',
+    ], 1, 0);
+  }),
+  well: tile((c, r) => {
+    paintGrass(c, r);
+    overlay(c, [
+      '...kkkkkkkk.....',
+      '..kRRRRRRRRk....',
+      '.kRRRRRRRRRRk...',
+      '..kNk....kNk....',
+      '..kNk.kk.kNk....',
+      '..kNk.kn.kNk....',
+      '.kmmmmmmmmmmk...',
+      'kmcMcMcMcMcmk...',
+      'kmceeeeeeecmk...',
+      'kmcMeeeeeMcmk...',
+      '.kmmmmmmmmmk....',
+      '..kkkkkkkkk.....',
+    ], 1, 2);
+  }, 221),
+  shellSand: tile((c, r) => {
+    paintSand(c, r);
+    overlay(c, [
+      '..kfk...........',
+      '.kfwfk....kok...',
+      '..kfk....kowok..',
+      '..........kok...',
+      '....kck.........',
+      '...kcwck........',
+      '....kck.........',
+    ], 1, 5);
+  }, 223),
+};
+
+// Context-aware decor: transparent overlays composited onto whatever ground
+// tile actually surrounds them, so a sign in a tech city sits on tech floor.
+function overlayOnly(rows, ox = 0, oy = 0) {
+  const cv = document.createElement('canvas');
+  cv.width = TILE; cv.height = TILE;
+  overlay(cv.getContext('2d'), rows, ox, oy);
+  return cv;
+}
+
+export const OVERLAYS = {
+  sign: overlayOnly([
+    '.kkkkkkkkkkkk...',
+    'kYYYYYYYYYYYYk..',
+    'kYDDDkDDDDkYYk..',
+    'kYYYYYYYYYYYYk..',
+    'kYDDDDkDDDYYYk..',
+    'kYYYYYYYYYYYYk..',
+    '.kkkkkNNkkkkk...',
+    '.....kNNk.......',
+    '.....kDDk.......',
+    '....kkkkkk......',
+  ], 0, 3),
+  lamp: overlayOnly([
+    '......kk........',
+    '....kkyykk......',
+    '....kyIIyk......',
+    '....kyIIyk......',
+    '....kkyykk......',
+    '.....kkkk.......',
+    '......MM........',
+    '......MM........',
+    '......MM........',
+    '......MM........',
+    '.....kMMk.......',
+    '....kMMMMk......',
+    '...kkkkkkkk.....',
+  ], 0, 1),
+  planter: overlayOnly([
+    '..f.y..f..y.f...',
+    '.fyfyffyfyfyff..',
+    '.kgggggggggggk..',
+    'kmcccccccccccmk.',
+    'kmcccccccccccmk.',
+    'kmmmmmmmmmmmmmk.',
+    '.kkkkkkkkkkkkk..',
+  ], 0, 6),
 };

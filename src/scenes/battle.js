@@ -7,7 +7,7 @@ import { Menu, panel } from '../engine/ui.js';
 import { enemyById } from '../data/enemies.js';
 import { knownSkills } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
-import { HIRO, ENEMY_ART } from '../art/sprites.js';
+import { HIRO, BATTLE_HIRO, ENEMY_ART } from '../art/sprites.js';
 
 const W = 240, H = 160;
 
@@ -26,6 +26,7 @@ let turn = 0;
 let agentCorrect = 0, swarmGoverned = false, finisherHinted = false;
 let promptChoice = null, agentReq = null;
 let taunted = false;
+let introFade = 0;
 
 // Layered battle scenes per biome: sky, celestial body, clouds/stars,
 // hill silhouettes, sea band, and a textured ground stage.
@@ -521,6 +522,7 @@ Scenes.register('battle', {
     stepup = false; enemyStun = 0; turn = 0;
     agentCorrect = 0; swarmGoverned = false; finisherHinted = false;
     taunted = false;
+    introFade = 0.5;
     t = 0;
     Audio.play(p.music || 'battle');
     if (p.boss) Audio.sfx('boss');
@@ -533,6 +535,7 @@ Scenes.register('battle', {
   update(dt) {
     window.__bs = state; // test harness hook
     t += dt;
+    if (introFade > 0) introFade -= dt;
     shake = Math.max(0, shake - dt);
     hshake = Math.max(0, hshake - dt);
     popups.forEach((p) => (p.t += dt));
@@ -601,7 +604,8 @@ Scenes.register('battle', {
     // enemy — bosses loom at 3x with a pulsing aura; mobs stand at 2x
     const art = ENEMY_ART[enemy.art];
     const isBoss = enemy.mechanics.includes('boss');
-    const scale = isBoss ? 3 : 2;
+    // bosses fill the stage but never hide their heads behind the panel
+    const scale = isBoss ? Math.min(3, 58 / art.height) : Math.min(2, 44 / art.height);
     const bob = isBoss ? Math.sin(t * 1.7) * 2 : 0;
     const ew2 = art.width * scale, eh2 = art.height * scale;
     const ex = 160 - ew2 / 2 + (shake > 0 ? rnd(5) - 2 : 0);
@@ -627,10 +631,10 @@ Scenes.register('battle', {
       if (!enemy.revealed) drawTextCentered(ctx, '? UNVERIFIED ?', 160, ey - 10, '#b78bff');
     }
 
-    // hiro (back view, scaled)
-    const hframe = HIRO.up[Math.floor(t * 2) % 2];
-    const hx = 36 + (hshake > 0 ? rnd(5) - 2 : 0);
-    ctx.drawImage(hframe, hx, 92, hframe.width * 2, hframe.height * 2);
+    // hiro (detailed battle back-sprite, breathing idle)
+    const hx = 26 + (hshake > 0 ? rnd(5) - 2 : 0);
+    const hy = 72 + Math.sin(t * 2) * 1.5 + (hshake > 0 ? rnd(3) - 1 : 0);
+    ctx.drawImage(BATTLE_HIRO, hx, hy, BATTLE_HIRO.width * 2, BATTLE_HIRO.height * 2);
 
     // enemy panel (wide enough that long boss names never hit the badge)
     panel(ctx, 4, 4, 168, 26);
@@ -685,6 +689,12 @@ Scenes.register('battle', {
       drawTextCentered(ctx, '* AGENTPASS SUPERVISION *', 120, 30, '#19d3c5');
       wrap(agentReq.text, 34).slice(0, 3).forEach((l, i) => drawText(ctx, l, 18, 41 + i * LINE_H, '#ffffff'));
       promptChoice.draw(ctx, 40, 74, 160);
+    }
+
+    // fade in from the entry transition
+    if (introFade > 0) {
+      ctx.fillStyle = `rgba(6,4,12,${Math.min(1, introFade * 2.2)})`;
+      ctx.fillRect(0, 0, W, H);
     }
   },
 });

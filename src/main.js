@@ -29,9 +29,14 @@ window.addEventListener('resize', resize);
 resize();
 
 Input.init();
-window.addEventListener('keydown', () => Audio.unlock(), { once: true });
-window.addEventListener('touchstart', () => Audio.unlock(), { once: true });
-window.addEventListener('mousedown', () => Audio.unlock(), { once: true });
+// Keep unlocking on every gesture: mobile browsers can re-suspend the
+// context (tab switch, lock screen), and iOS only resumes in-gesture.
+for (const ev of ['keydown', 'touchstart', 'touchend', 'mousedown']) {
+  window.addEventListener(ev, () => Audio.unlock());
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) Audio.unlock();
+});
 
 let last = performance.now();
 function frame(now) {

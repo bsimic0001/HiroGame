@@ -100,6 +100,41 @@ export function makeActor(swap = null) {
 }
 
 export const HIRO = makeActor();
+
+// Detailed battle back-sprite (26x30, drawn 2x in combat): full quill mane,
+// shoulder shading, fists clenched, wide stance.
+const BATTLE_HIRO_ART = [
+  '.....h..hY..hh..Yh..h.....',
+  '....hh.hYYh.YY.hYh.hh.....',
+  '...hhYhYYYYhYYhYYYhYYh....',
+  '..hYYYYYYYYYYYYYYYYYYh....',
+  '.hYYhYYYYYYYYYYYYYYhYYh...',
+  '.hYYYYYYYYYYYYYYYYYYYYh...',
+  'hYYhYYYYYhYYYYhYYYYYhYYh..',
+  'hYYYYYYYYYYYYYYYYYYYYYYh..',
+  'hYhYYYYYYYYYYYYYYYYYYhYh..',
+  '.hYYYYYYhYYYYYYhYYYYYYh...',
+  '.hhYYYYYYYYYYYYYYYYYYhh...',
+  '..hhYYYYYYYYYYYYYYYYhh....',
+  '...hhYYYYYYYYYYYYYYhh.....',
+  '....hhYYYYYYYYYYYYhh......',
+  '....jjjjjjjjjjjjjjjj......',
+  '...jjJJjjjjjjjjjjJJjj.....',
+  '..jjjJjjjjjjjjjjjjJjjj....',
+  '.kkjJjjjjjjjjjjjjjJjkk....',
+  '.kkjjjjjjjjjjjjjjjjjkk....',
+  '..kjjjjjjjjjjjjjjjjjk.....',
+  '...jjjjjjjjjjjjjjjj.......',
+  '...jjjjjjjjjjjjjjjj.......',
+  '...jjjjTjjjjjjTjjjj.......',
+  '...jjjjjj....jjjjjj.......',
+  '...jjjjjj....jjjjjj.......',
+  '...jjjjj......jjjjj.......',
+  '...kkkkk......kkkkk.......',
+  '..kkkkkk......kkkkkk......',
+  '..kkkkk........kkkkk......',
+];
+export const BATTLE_HIRO = outline(compile(BATTLE_HIRO_ART));
 // Shadow clone of Hiro for Doppelganger fights.
 export const DOPPEL_HIRO = makeActor({ s: 'd', h: 'q', Y: 'q', b: 'r', t: 'v', j: 'q', J: 'q' });
 
@@ -295,295 +330,9 @@ export const NPCS = {
   guard: outline(compile(GUARD)),
 };
 
-// ----------------------------------------------------------- ENEMIES
-// Phish Koi 28x18 — an orange koi with a hook lure. Hiro's first foe.
-const PHISHKOI = [
-  '..........kkkkkk............',
-  '........kkoooooonkk.........',
-  '.......koooooooooonk........',
-  '.....kkooowkooooooonk..kk...',
-  '....koooooooooOOooook.koo...',
-  '.y.koooooooooooooOOookoooo..',
-  '.yykoooOOoooooooooookooooo..',
-  '..ykoooooooooooooOOokoooo...',
-  '...koooooooOOooooook.koo....',
-  '....koooooooooooook...kk....',
-  '.....kkoooooooookk..........',
-  '.......kkkkkkkkk............',
-];
-// Spear-Phish 28x14 — sleeker blue fish with a spear snout.
-const SPEARPHISH = [
-  '...........kkkkk............',
-  '.........kkbbbbbkk..........',
-  '........kbbbwkbbbbk....kk...',
-  'kkkkkkkkbbbbbbbbbbbk..kbb...',
-  'mmmmmmkbbbbbbbBBbbbbkkbbbb..',
-  'kkkkkkkbbbbBBbbbbbbbkkbbbb..',
-  '........kbbbbbbbbBbk..kbb...',
-  '.........kkbbbbbbkk....kk...',
-  '...........kkkkk............',
-];
-// Lure Angler 30x24 — anglerfish dangling a glowing fake login.
-const ANGLER = [
-  '............kk..............',
-  '...........kzk.............',
-  '...........kzzk............',
-  '............kzk.............',
-  '............kk..............',
-  '...........kqk.............',
-  '..........kqqk.............',
-  '.......kkkqqqkkk............',
-  '.....kkqqqqqqqqqkk.....kk...',
-  '....kqqqqwkqqqqqqqk...kqq...',
-  '...kqqqqqqqqqqqqqqqk.kqqq...',
-  '..kqwwwwqqqqqqqqqqqqkqqqq...',
-  '..kqkkkkwqqqqqqqqqqqkqqqq...',
-  '...kqwwwwqqqqqqqqqqqkqqq....',
-  '....kqqqqqqqqqqqqqqk..kq....',
-  '.....kkqqqqqqqqqkk....k.....',
-  '.......kkkkkkkkk............',
-];
-// Lazarus Mask 20x26 — a too-perfect candidate in a suit and white mask.
-const LAZARUS = [
-  '.....kkkkkkk........',
-  '....kkkkkkkkk.......',
-  '....kwwwwwwwk.......',
-  '....kwkwwwkwk.......',
-  '....kwwwwwwwk.......',
-  '....kwwkkwwwk.......',
-  '....kwwwwwwwk.......',
-  '.....kwwwwwk........',
-  '....jjjjjjjjj.......',
-  '...jjjwwwwwjjj......',
-  '..jjjjwwrwwjjjj.....',
-  '..sjjjwwwwwjjjs.....',
-  '..sjjjjjjjjjjjs.....',
-  '...jjjjjjjjjjj......',
-  '...jjjjjjjjjjj......',
-  '...jjjj...jjjj......',
-  '...jjjj...jjjj......',
-  '...kkk.....kkk......',
-];
-// Vishing Imp 20x22 — a grinning imp whispering into an old phone.
-const VISHIMP = [
-  '...k.........k......',
-  '..krk.......krk.....',
-  '..krrk.....krrk.....',
-  '...krrkkkkkrrk......',
-  '...krrrrrrrrrk......',
-  '..krrwkrrrwkrrk.....',
-  '..krrrrrrrrrrrk.kkk.',
-  '..krrkwwwwwkrrkkmmk.',
-  '...krrrkkkrrrrkkmk..',
-  '....krrrrrrrrkmmk...',
-  '....skrrrrrksmmk....',
-  '...s.krrrrrk.s......',
-  '......krrk..........',
-  '.....krrrrk.........',
-  '....krk..krk........',
-  '....kk....kk........',
-];
-// Push Bomber 22x22 — imp juggling APPROVE? bombs (bells).
-const PUSHBOMBER = [
-  '..kk........kk........',
-  '.kyyk......kyyk.......',
-  '..kyk.......kyk.......',
-  '...k.........k........',
-  '....kkkkkkkk..........',
-  '...kvvvvvvvvk.........',
-  '..kvvwkvvwkvvk........',
-  '..kvvvvvvvvvvk..kkk...',
-  '..kvkwwwwwkvvk.kyyyk..',
-  '...kvvvvvvvvk..kyyyk..',
-  '....kvvvvvvk....kkk...',
-  '...skvvvvvvks.........',
-  '......kvvk............',
-  '.....kvvvvk...........',
-  '....kvk..kvk..........',
-  '....kk....kk..........',
-];
-// Keylogger Spider 26x18 — a spider riding a keyboard key.
-const KEYLOGGER = [
-  '....k....kk....k........',
-  '.....k..kqqk..k.........',
-  '......kqqqqqqk..........',
-  '...kkqqqwkqwkqqkk.......',
-  '..k..qqqqqqqqqq..k......',
-  '.....kqqqqqqqqk.........',
-  '...kk.qqqqqqqq.kk.......',
-  '..k...kqqqqqqk...k......',
-  '......mmmmmmmmm.........',
-  '.....mcccccccccm........',
-  '.....mcckkkkkccm........',
-  '.....mcckckkkccm........',
-  '.....mcccccccccm........',
-  '.....mmmmmmmmmmm........',
-];
-// Token Thief 20x26 — hooded pickpocket with a stolen session cookie.
-const TOKENTHIEF = [
-  '.....kkkkkkk........',
-  '....kqqqqqqqk.......',
-  '...kqqqqqqqqqk......',
-  '...kqqeeeeeqqk......',
-  '...kqekwkwkeqk......',
-  '...kqeeeeeeeqk......',
-  '...kqqeeeeeqqk......',
-  '....kqqqqqqqk.......',
-  '...kqqqqqqqqqk..yy..',
-  '..kqqqqqqqqqqqksyy..',
-  '..sqqqqqqqqqqqss....',
-  '..sqqqqqqqqqqq......',
-  '...kqqqqqqqqqk......',
-  '...kqqqqqqqqqk......',
-  '...kqqq...qqqk......',
-  '...kkk.....kkk......',
-];
-// SIM Shifter 22x18 — a gooey shapeshifter clutching a SIM card.
-const SIMSHIFT = [
-  '......kkkkkkk.........',
-  '....kkfffffffkk.......',
-  '...kfffffffffffk......',
-  '..kffwkfffffwkffk.....',
-  '..kfffffffffffffk.....',
-  '..kffffkkkkfffffk.yyk.',
-  '...kffffffffffffkyyyk.',
-  '..kffffffffffffkkyyk..',
-  '.kfffkffffffkfffkkk...',
-  '.kff..kffffk..kff.....',
-  '..k....kffk....k......',
-  '........kk............',
-];
-// Credential Stuffer Zombie 20x26 — shambles around trying one key on every door.
-const STUFFERZOMBIE = [
-  '....ggggggg.........',
-  '...ggggggggg........',
-  '...ggssssggg........',
-  '...sssssssss........',
-  '...skssssks.........',
-  '...sssssssss........',
-  '....sskksss.........',
-  '...cccccccc.........',
-  '..cccccccccc..yy....',
-  '.sccccccccccssyy....',
-  '.sccccccccccs.y.....',
-  '..cccccccccc..y.....',
-  '...cccccccc...yy....',
-  '...NNNNNNNN.........',
-  '...NNN..NNN.........',
-  '...sss..sss.........',
-  '...kk....kk.........',
-];
-// Rogue Agent 20x20 — a small autonomous drone, glowing and unsupervised.
-const ROGUEAGENT = [
-  '.......kkkkk........',
-  '.....kkmmmmmkk......',
-  '....kmmmmmmmmmk.....',
-  '...kmmzzmmmzzmmk....',
-  '...kmmzkmmmzkmmk....',
-  '...kmmmmmmmmmmmk....',
-  '....kmmkzzzkmmk.....',
-  '.....kmmmmmmmk......',
-  '...k..kkmmmkk..k....',
-  '..kzk..kmmmk..kzk...',
-  '...k..kmmmmmk..k....',
-  '......kmk.kmk.......',
-  '.....kzk...kzk......',
-  '......k.....k.......',
-];
+// Detailed battle sprites live in enemies.js
+export { ENEMY_ART } from './enemies.js';
 
-// ----------------------------------------------------------- BOSSES
-// The Phisher King 40x30 — crowned anglerfish, lantern shaped like a login box.
-const PHISHERKING = [
-  '..............y.y.y.....................',
-  '..............yyyyy.....................',
-  '..............yyyyy.....................',
-  '...........kkkqqqqkkk...................',
-  '.........kkqqqqqqqqqkkk........kk.......',
-  '.......kkqqqqqqqqqqqqqkk.....kqqk.......',
-  '......kqqqqwwkqqqqqqqqqqk...kqqqk.......',
-  '.....kqqqqqwwkqqqqqqqqqqqk.kqqqqk.......',
-  '....kqqqqqqqqqqqqqqqqqqqqqkqqqqqk.......',
-  '...kqwwwwwwqqqqqqqqqqqqqqqkqqqqk........',
-  '...kqwkkkkkwqqqqqqqqqqqqqqkqqqqk........',
-  '...kqwwwwwwqqqqqqqqqqqqqqqkqqqqk........',
-  '....kqqqqqqqqqqqqqqqqqqqqkqqqqqk........',
-  '.....kqqqqqqqqqqqqqqqqqqkqqqqqk.........',
-  '......kkqqqqqqqqqqqqqkkqqqqqk...........',
-  '........kkkqqqqqqqkkk...kkk.............',
-  '...........kkkkkk......................',
-  '....kz..................................',
-  '...kzzk.........................        ',
-  '..kzwzzk................................',
-  '..kzzzzk................................',
-  '...kzzk.................................',
-  '....kk..................................',
-];
-// Scattered Spider 40x26 — its web is made of phone cords.
-const SCATTEREDSPIDER = [
-  '...k......kk........kk......k...........',
-  '....k....kqqk......kqqk....k............',
-  '.....k..kqqqqk....kqqqqk..k.............',
-  '......kkqqqqqqkkkkqqqqqqkk..............',
-  '.......kqqqqqqqqqqqqqqqqk...............',
-  '....kkkqqqrrkqqqqqqkrrqqkkk.............',
-  '...k..kqqqrkkqqqqqqkkrqqqk..k...........',
-  '..k...kqqqqqqqkkkkqqqqqqqk...k..........',
-  '......kqqqqqkwwwwkqqqqqqk...............',
-  '....kkqqqqqqkwkkwkqqqqqqkk..............',
-  '...k..kqqqqqkwwwwkqqqqqk..k.............',
-  '..k....kqqqqqqqqqqqqqqk....k............',
-  '.......kkqqqqqqqqqqqkk..................',
-  '....mmm..kkqqqqqqqkk..mmm...............',
-  '...mkkkm...kkkkkkk...mkkkm..............',
-  '...m...m.............m...m..............',
-];
-// The Stuffer 36x32 — a golem built from a billion leaked passwords.
-const STUFFER = [
-  '..........cckkkkkkcc................',
-  '........ckkccccccckkc...............',
-  '.......kcccwkccccwkccck.............',
-  '.......kccccccccccccck..............',
-  '.......kcckkkkkkkkcck...............',
-  '........kccccccccck.................',
-  '.....kkkkkkkkkkkkkkkkkk.............',
-  '....kcckccckccckccckcck.............',
-  '...kccccccccccccccccccck............',
-  '..kcckkkkccckkkkccckkkcck...........',
-  '..kcccccccccccccccccccck............',
-  '.skcccckkkkkccckkkkccccks..........',
-  '.skcccccccccccccccccccks............',
-  '..kcccccccccccccccccck..............',
-  '...kccccccccccccccccck..............',
-  '...kcccccck...kcccccck..............',
-  '...kcccccck...kcccccck..............',
-  '...kkkkkkkk...kkkkkkkk..............',
-];
-// K0BOLD the Shadow Agent 44x34 — a dragon of living code and stolen secrets.
-const KOBOLD = [
-  '.........k..........................k.......',
-  '..........kk......................kk........',
-  '...........kqk..................kqk.........',
-  '......kkkkkqqqkkkkkkkkkkkkkkkkkqqqkkkk......',
-  '.....kqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk......',
-  '....kqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk.....',
-  '...kqqqzzkqqqqqqqqqqqqqqqqqqqqqqkzzqqqqk....',
-  '...kqqqzkkqqqqqqqqqqqqqqqqqqqqqqkkzqqqqk....',
-  '....kqqqqqqqqkkkkkkkkkkkkkkqqqqqqqqqqqk.....',
-  '.....kqqqqqkzzzzzzzzzzzzzzzzkqqqqqqqqk......',
-  '......kqqqkzkzkzkzkzkzkzkzkzzkqqqqqqk.......',
-  '.......kqqkzzzzzzzzzzzzzzzzzzkqqqqqk........',
-  '......kqqqqkkkkkkkkkkkkkkkkkkqqqqqqqk.......',
-  '.....kqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk......',
-  '....kqqqqkqqqqqqqkqqqqqkqqqqqqqkqqqqqqk.....',
-  '...kqqqqk.kqqqqqk..kqqk..kqqqqk.kqqqqqqk....',
-  '..kqqqqk...kqqqk....kk....kqqk...kqqqqqqk...',
-  '..kqqqk.....kqk...........kqk.....kqqqqqk...',
-  '..kqqk.......k.............k.......kqqqqk...',
-  '..kqk...............................kqqqk...',
-  '..kk..................................kkk...',
-];
-
-function deco(rows) { return compile(rows); }
 
 // --------------------------------------------------- AMBIENT CRITTERS
 export const CRITTERS = {
@@ -616,22 +365,3 @@ export const CRITTERS = {
   ]),
 };
 
-export const ENEMY_ART = {
-  phishkoi: deco(PHISHKOI),
-  spearphish: deco(SPEARPHISH),
-  angler: deco(ANGLER),
-  lazarus: deco(LAZARUS),
-  doppel: compile(HIRO_DOWN_A, { s: 'd', h: 'q', Y: 'q', b: 'r', t: 'v', j: 'q', J: 'q' }),
-  vishimp: deco(VISHIMP),
-  pushbomber: deco(PUSHBOMBER),
-  keylogger: deco(KEYLOGGER),
-  tokenthief: deco(TOKENTHIEF),
-  simshift: deco(SIMSHIFT),
-  stufferzombie: deco(STUFFERZOMBIE),
-  rogueagent: deco(ROGUEAGENT),
-  phisherking: deco(PHISHERKING),
-  doppelprime: compile(HIRO_DOWN_A, { s: 'd', h: 'q', Y: 'q', b: 'r', t: 'v', j: 'q', J: 'q' }),
-  scatteredspider: deco(SCATTEREDSPIDER),
-  stuffer: deco(STUFFER),
-  kobold: deco(KOBOLD),
-};

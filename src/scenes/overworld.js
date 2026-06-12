@@ -27,6 +27,12 @@ let animT = 0, fade = 0;
 let bannerT = 0; // map-name banner visibility timer
 let graceSteps = 0; // steps remaining with no random encounters
 let critters = []; // ambient wildlife
+let pendingBattle = null; // battle-entry transition: { t, params }
+
+function queueBattle(params) {
+  pendingBattle = { t: 0, params };
+  Audio.sfx('encounter');
+}
 
 function spawnCritters() {
   critters = [];
@@ -134,7 +140,7 @@ function setPos(tx, ty) {
 
 function startBattle(npc) {
   const enemyId = npc.boss || npc.battle;
-  Scenes.go('battle', {
+  queueBattle({
     enemyId,
     npcId: npc.id,
     boss: !!npc.boss,
@@ -239,8 +245,7 @@ function arrive() {
     graceSteps = 6;
     const g = map.encounters.groups;
     const enemyId = g[Math.floor(Math.random() * g.length)];
-    Audio.sfx('encounter');
-    Scenes.go('battle', { enemyId, boss: false, music: 'battle', biome: Game.s.map });
+    queueBattle({ enemyId, boss: false, music: 'battle', biome: Game.s.map });
   }
 }
 
@@ -287,6 +292,17 @@ Scenes.register('overworld', {
     updateCritters(dt);
     if (fade > 0) fade = Math.max(0, fade - dt);
     if (bannerT > 0) bannerT -= dt;
+
+    // battle-entry transition: freeze the world, flash, wipe to black
+    if (pendingBattle) {
+      pendingBattle.t += dt;
+      if (pendingBattle.t > 0.95) {
+        const p = pendingBattle;
+        pendingBattle = null;
+        Scenes.go('battle', p.params);
+      }
+      return;
+    }
 
     if (mode === 'dialog') {
       dialog.update(dt);
@@ -343,7 +359,7 @@ Scenes.register('overworld', {
           Audio.sfx('item');
           say([`PURCHASED ${item.name}! (${item.desc})`], () => openShop());
         } else {
-          say(['SHOPKEEPER|NOT ENOUGH GOLD, FRIEND. DEFEAT MORE PHANTOMS. THE ROI IS EXCELLENT.'], () => openShop());
+          say(['MAX|NOT ENOUGH GOLD, FRIEND. DEFEAT MORE PHANTOMS. THE ROI IS EXCELLENT.'], () => openShop());
         }
       }
       return;
@@ -639,6 +655,25 @@ Scenes.register('overworld', {
     if (fade > 0) {
       ctx.fillStyle = `rgba(5,3,12,${Math.min(1, fade * 4)})`;
       ctx.fillRect(0, 0, W, H);
+    }
+
+    // battle-entry transition: double flash, then venetian bars sweep in
+    if (pendingBattle) {
+      const bt = pendingBattle.t;
+      if (bt < 0.3 && Math.sin(bt * 42) > 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.fillRect(0, 0, W, H);
+      }
+      if (bt > 0.25) {
+        const prog = Math.min(1, (bt - 0.25) / 0.55);
+        const eased = 1 - Math.pow(1 - prog, 2);
+        ctx.fillStyle = '#06040c';
+        for (let i = 0; i < 8; i++) {
+          const bw = Math.ceil(eased * W);
+          if (i % 2 === 0) ctx.fillRect(0, i * 20, bw, 20);
+          else ctx.fillRect(W - bw, i * 20, bw, 20);
+        }
+      }
     }
   },
 });

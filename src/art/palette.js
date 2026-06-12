@@ -71,6 +71,28 @@ export function mirror(cv) {
   return out;
 }
 
+// Digital-corruption effect: shifts horizontal slices and sprinkles static.
+// Used for deepfake doppelgangers.
+export function glitchify(cv, seed = 5) {
+  const out = document.createElement('canvas');
+  out.width = cv.width + 4; out.height = cv.height;
+  const c = out.getContext('2d');
+  let s = seed;
+  const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  let y = 0;
+  while (y < cv.height) {
+    const band = 2 + Math.floor(rnd() * 4);
+    const off = Math.floor(rnd() * 5) - 2;
+    c.drawImage(cv, 0, y, cv.width, band, 2 + off, y, cv.width, band);
+    y += band;
+  }
+  for (let i = 0; i < 14; i++) {
+    c.fillStyle = rnd() < 0.5 ? 'rgba(134,241,255,0.8)' : 'rgba(228,75,75,0.8)';
+    c.fillRect(Math.floor(rnd() * out.width), Math.floor(rnd() * out.height), 1 + Math.floor(rnd() * 2), 1);
+  }
+  return out;
+}
+
 // Add a crisp 1px outline around every opaque pixel — the classic 32-bit
 // "pop" that separates characters from the ground.
 export function outline(cv, color = '#180f28') {

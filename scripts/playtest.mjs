@@ -199,13 +199,15 @@ await page.evaluate(() => import('/src/engine/scenes.js').then(async (m) => {
 }));
 await page.waitForTimeout(400);
 await z(12, 160); // talk to Phisher King, advance b1_pre
+await page.waitForTimeout(1400); // battle-entry transition
 for (let i = 0; i < 25 && (await sceneName()) === 'battle'; i++) {
   await untilState('menu', 10);
   if ((await sceneName()) !== 'battle') break;
   await z(1); // FIGHT
 }
 check('boss defeated, back in overworld', (await sceneName()) === 'overworld');
-await z(14, 160); // b1_win dialog (blade awarded) -> ch2 cutscene starts
+// advance b1_win dialog (blade awarded) until the ch2 cutscene starts
+for (let i = 0; i < 30 && (await sceneName()) === 'overworld'; i++) await z(1, 170);
 check('chapter cutscene plays after boss', (await sceneName()) === 'cutscene');
 await skipCutscene();
 check('cutscene returns to overworld', (await sceneName()) === 'overworld');

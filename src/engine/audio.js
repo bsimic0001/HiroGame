@@ -200,8 +200,24 @@ const SFX = {
   step: () => {},
 };
 
+let silentEl = null;
+
 export const Audio = {
-  unlock() { if (ensureCtx() && ctx.state === 'suspended') ctx.resume(); },
+  unlock() {
+    if (!ensureCtx()) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    // iOS: route the audio session to 'playback' by looping a silent <audio>,
+    // otherwise the physical ring/silent switch mutes all WebAudio.
+    if (!silentEl) {
+      silentEl = document.createElement('audio');
+      silentEl.setAttribute('playsinline', '');
+      silentEl.loop = true;
+      silentEl.volume = 0.01;
+      // 8 samples of 8-bit silence
+      silentEl.src = 'data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQgAAACAgICAgICAgA==';
+      silentEl.play().catch(() => { silentEl = null; }); // retry on next gesture
+    }
+  },
   play(name) {
     if (!ensureCtx()) return;
     if (current && current.name === name) return;

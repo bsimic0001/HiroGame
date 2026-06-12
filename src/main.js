@@ -6,6 +6,7 @@ import './scenes/overworld.js';
 import './scenes/battle.js';
 import './scenes/codex.js';
 import './scenes/ending.js';
+import './scenes/cutscene.js';
 
 export const W = 240, H = 160;
 

@@ -10,6 +10,9 @@ import { ENEMY_ART } from '../art/sprites.js';
 const W = 240, H = 160;
 const ORDER = Object.keys(ENEMIES);
 
+const detectiveImg = new Image();
+detectiveImg.src = 'assets/hiro/v2/pose5.png'; // detective Hiro presents the files
+
 let from = 'title';
 let cursor = 0;
 let detail = null; // enemy id when viewing detail
@@ -67,6 +70,12 @@ Scenes.register('codex', {
       return;
     }
 
+    if (detectiveImg.complete && detectiveImg.naturalWidth) {
+      ctx.globalAlpha = 0.5;
+      const dw = 92, dh = Math.round(dw * (detectiveImg.naturalHeight / detectiveImg.naturalWidth));
+      ctx.drawImage(detectiveImg, W - dw + 14, H - dh + 6, dw, dh);
+      ctx.globalAlpha = 1;
+    }
     const unlocked = ORDER.filter((id) => Game.s.codex[id]).length;
     drawTextCentered(ctx, '* THREAT CODEX *', W / 2, 8, '#19d3c5');
     drawTextCentered(ctx, `${unlocked}/${ORDER.length} THREATS UNDERSTOOD`, W / 2, 18, '#b78bff');

@@ -9,6 +9,7 @@ import { TILES, TILE, OVERLAYS } from '../art/tiles.js';
 import { HIRO, NPCS } from '../art/sprites.js';
 import { ENEMY_ART } from '../art/sprites.js';
 import { getDialog } from '../data/script.js';
+import { Weather } from '../engine/weather.js';
 import { ITEMS } from '../data/items.js';
 import { knownSkills } from '../data/skills.js';
 
@@ -63,6 +64,7 @@ function loadMap(id) {
     if (p.carve) map.grid[p.y][p.x] = p.carve;
   }
   Audio.play(map.music || 'overworld');
+  Weather.set(map.weather);
   bannerT = 3;
   graceSteps = 8; // breathing room when entering a map
   Game.save();
@@ -207,12 +209,16 @@ Scenes.register('overworld', {
 
     if (params.fromBattle === 'win' && params.npcId) {
       const npc = map.npcs.find((n) => n.id === params.npcId);
+      const CHAPTER_CUTSCENE = {
+        phisherking: 'ch2', doppelprime: 'ch3', scatteredspider: 'ch4', stuffer: 'ch5',
+      };
       if (npc) {
         say(npc.win, () => {
           if (npc.flag) Game.s.flags[npc.flag] = true;
           if (npc.gear) applyGear(npc.gear);
           Game.save();
           if (npc.id === 'kobold') Scenes.go('ending');
+          else if (CHAPTER_CUTSCENE[npc.id]) Scenes.go('cutscene', { id: CHAPTER_CUTSCENE[npc.id] });
         });
       }
     } else if (params.fromBattle === 'lose') {
@@ -226,6 +232,7 @@ Scenes.register('overworld', {
 
   update(dt) {
     animT += dt;
+    Weather.update(dt);
     if (fade > 0) fade = Math.max(0, fade - dt);
     if (bannerT > 0) bannerT -= dt;
 
@@ -469,6 +476,8 @@ Scenes.register('overworld', {
       ctx.fillStyle = map.tint;
       ctx.fillRect(0, 0, W, H);
     }
+    // --- weather layer (above world, below UI) ---
+    Weather.draw(ctx);
 
     // --- portal markers: every exit gets a pulsing arrow (or a lock) ---
     for (const p of map.portals || []) {

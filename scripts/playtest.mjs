@@ -25,6 +25,10 @@ const clearLog = () => page.evaluate(() => { window.__hiroLog.length = 0; });
 const sceneName = () => page.evaluate(() => import('/src/engine/scenes.js').then((m) => m.Scenes.name));
 const game = () => page.evaluate(() => import('/src/engine/state.js').then((m) => JSON.parse(JSON.stringify(m.Game.s))));
 const bstate = () => page.evaluate(() => window.__bs || '');
+// press A through any active cutscene until it ends
+async function skipCutscene(max = 24) {
+  for (let i = 0; i < max && (await sceneName()) === 'cutscene'; i++) await z(1, 160);
+}
 
 // press A through messages until battle reaches `target` state (or timeout)
 async function untilState(target, max = 40) {
@@ -166,8 +170,9 @@ await page.evaluate(() => localStorage.removeItem('hiro.save.v1'));
 await page.goto('http://localhost:8741/');
 await page.evaluate(() => { window.__hiroLog = []; });
 await page.waitForTimeout(500);
-await z(1); // NEW GAME
+await z(1); // NEW GAME -> opening cutscene
 await page.waitForTimeout(400);
+await skipCutscene();
 await z(18, 110); // clear 8-page intro (2 presses per page w/ typewriter)
 for (let i = 0; i < 3; i++) { await page.keyboard.down('ArrowRight'); await page.waitForTimeout(280); await page.keyboard.up('ArrowRight'); }
 const gBefore = await game();
@@ -200,7 +205,10 @@ for (let i = 0; i < 25 && (await sceneName()) === 'battle'; i++) {
   await z(1); // FIGHT
 }
 check('boss defeated, back in overworld', (await sceneName()) === 'overworld');
-await z(14, 160); // b1_win dialog (blade awarded)
+await z(14, 160); // b1_win dialog (blade awarded) -> ch2 cutscene starts
+check('chapter cutscene plays after boss', (await sceneName()) === 'cutscene');
+await skipCutscene();
+check('cutscene returns to overworld', (await sceneName()) === 'overworld');
 const g7 = await game();
 check('Passkey Blade earned from boss', g7.gear.blade === true);
 check('boss1 flag set', g7.flags.boss1 === true);
@@ -222,10 +230,10 @@ await tpage.touchscreen.tap(210, 300); // anywhere: reveals touch UI
 await tpage.waitForTimeout(200);
 const touchVisible = await tpage.evaluate(() => document.body.classList.contains('touch'));
 check('touch D-pad revealed on touch device', touchVisible);
-await tpage.tap('#b-a'); // NEW GAME
+await tpage.tap('#b-a'); // NEW GAME -> opening cutscene
 await tpage.waitForTimeout(400);
 const tscene = await tpage.evaluate(() => import('/src/engine/scenes.js').then((m) => m.Scenes.name));
-check('A button starts the game', tscene === 'overworld');
+check('A button starts the game', tscene === 'cutscene');
 await tpage.screenshot({ path: `${SHOTS}/t8-touch.png` });
 await touchCtx.close();
 

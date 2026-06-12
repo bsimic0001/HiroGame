@@ -8,7 +8,7 @@ import { Menu, panel } from '../engine/ui.js';
 const W = 240, H = 160;
 
 const hiroImg = new Image();
-hiroImg.src = 'assets/hiro/hiro-wave.png';
+hiroImg.src = 'assets/hiro/v2/pose2.png'; // flying punch
 
 let menu = null;
 let t = 0;
@@ -35,7 +35,7 @@ Scenes.register('title', {
     if (confirmNew) {
       const r = confirmNew.update();
       if (r === 'cancel') confirmNew = null;
-      else if (r && r.value === 'yes') { Game.newGame(); Scenes.go('overworld'); }
+      else if (r && r.value === 'yes') { Game.newGame(); Scenes.go('cutscene', { id: 'ch1' }); }
       else if (r) confirmNew = null;
       return;
     }
@@ -48,7 +48,7 @@ Scenes.register('title', {
           { label: 'KEEP MY SAVE', value: 'no' },
           { label: 'ERASE + START OVER', value: 'yes' },
         ]);
-      } else { Game.newGame(); Scenes.go('overworld'); }
+      } else { Game.newGame(); Scenes.go('cutscene', { id: 'ch1' }); }
     } else if (r.value === 'codex') Scenes.go('codex', { from: 'title' });
     else if (r.value === 'mute') { Audio.toggleMute(); buildMenu(); }
   },
@@ -89,10 +89,11 @@ Scenes.register('title', {
     for (const [wx, wy] of [[20, 146], [26, 146], [58, 150], [102, 142], [110, 142], [154, 148], [204, 144], [210, 144]]) {
       ctx.fillRect(wx, wy, 2, 3);
     }
-    // Hiro art, bobbing
+    // Hiro art, bobbing (punch pose is tall: keep aspect)
     if (hiroImg.complete && hiroImg.naturalWidth) {
       const bob = Math.sin(t * 2) * 2;
-      ctx.drawImage(hiroImg, 150, 50 + bob, 88, 88);
+      const hw = 76, hh = Math.round(hw * (hiroImg.naturalHeight / hiroImg.naturalWidth));
+      ctx.drawImage(hiroImg, 158, 36 + bob, hw, hh);
     }
     drawTextScaled(ctx, 'HIRO', 80, 16, 3, '#ffffff', '#2c1f5e');
     drawTextCentered(ctx, '* IDENTITY UNDER SIEGE *', 80, 44, '#19d3c5');

@@ -38,7 +38,7 @@ function norm(rows, border) {
 export const MAPS = {
   // ------------------------------------------------------ CH1: LOGINSHIRE
   loginshire: {
-    name: 'LOGINSHIRE VILLAGE', border: 't', music: 'town', onEnter: 'intro',
+    name: 'LOGINSHIRE VILLAGE', border: 't', music: 'town', weather: 'leaves', onEnter: 'intro',
     grid: norm([
       'tttttttttttttttttttttttttt',
       'ttgggggiggggggggggggigggtt',
@@ -72,7 +72,7 @@ export const MAPS = {
 
   // ------------------------------------------------------ CH1: THE SHOALS
   shoals: {
-    name: 'THE PHISHING SHOALS', border: 'w', music: 'overworld',
+    name: 'THE PHISHING SHOALS', border: 'w', music: 'overworld', weather: 'spray',
     encounters: { rate: 0.055, groups: ['phishkoi', 'phishkoi', 'spearphish', 'angler'] },
     grid: norm([
       'wwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
@@ -109,7 +109,7 @@ export const MAPS = {
 
   // -------------------------------------------------- CH2: ONBOARDING GATE
   onboarding: {
-    name: 'THE ONBOARDING GATE', border: 'W', music: 'town', onEnter: 'ch2_intro',
+    name: 'THE ONBOARDING GATE', border: 'W', music: 'town', weather: 'rain', tint: 'rgba(40,60,120,0.10)', onEnter: 'ch2_intro',
     grid: norm([
       'WWWWWWWWWWWWWWWWWWWWWWWWWW',
       'WpppppppQppppppppQppppppW',
@@ -147,7 +147,7 @@ export const MAPS = {
 
   // ----------------------------------------------------- CH2: THE GATEHALL
   gatehall: {
-    name: 'THE GATEHALL', border: 'W', music: 'overworld', tint: 'rgba(255,150,60,0.05)',
+    name: 'THE GATEHALL', border: 'W', music: 'overworld', weather: 'dust', tint: 'rgba(255,150,60,0.05)',
     encounters: { rate: 0.06, groups: ['doppel', 'lazarus', 'doppel'] },
     grid: norm([
       'WEWWjWWEWWWWWEWWjWWEWW',
@@ -180,7 +180,7 @@ export const MAPS = {
 
   // ---------------------------------------------------- CH3: HELP DESK KEEP
   keep: {
-    name: 'HELP DESK KEEP', border: 'W', music: 'town', tint: 'rgba(255,170,80,0.04)', onEnter: 'ch3_intro',
+    name: 'HELP DESK KEEP', border: 'W', music: 'town', weather: 'dust', tint: 'rgba(255,170,80,0.04)', onEnter: 'ch3_intro',
     grid: norm([
       'WWjWWEWWWWWWjWWWWWEWWWjWWW',
       'WqqFFFFFFFFFFFFFFFFFFFFqqW',
@@ -215,7 +215,7 @@ export const MAPS = {
 
   // ---------------------------------------------------- CH3: RESET CAVERNS
   caverns: {
-    name: 'THE RESET CAVERNS', border: 'C', music: 'overworld', tint: 'rgba(30,15,75,0.16)',
+    name: 'THE RESET CAVERNS', border: 'C', music: 'overworld', weather: 'drips', tint: 'rgba(30,15,75,0.16)',
     encounters: { rate: 0.06, groups: ['vishimp', 'pushbomber', 'vishimp', 'pushbomber'] },
     grid: norm([
       'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
@@ -249,7 +249,7 @@ export const MAPS = {
 
   // ------------------------------------------------- CH4: ENDPOINT FRONTIER
   frontier: {
-    name: 'THE ENDPOINT FRONTIER', border: 'X', music: 'overworld', tint: 'rgba(20,30,90,0.10)', onEnter: 'ch4_intro',
+    name: 'THE ENDPOINT FRONTIER', border: 'X', music: 'overworld', weather: 'data', tint: 'rgba(20,30,90,0.10)', onEnter: 'ch4_intro',
     encounters: { rate: 0.06, groups: ['keylogger', 'tokenthief', 'simshift', 'stufferzombie'] },
     grid: norm([
       'XXXXVXXXXXXXXVXXXXXXXXVXXXXXXX',
@@ -286,7 +286,7 @@ export const MAPS = {
 
   // ----------------------------------------------------- CH5: THE CAPITAL
   capital: {
-    name: 'IDENTIA CAPITAL', border: 'X', music: 'town', tint: 'rgba(120,70,255,0.06)', onEnter: 'ch5_intro',
+    name: 'IDENTIA CAPITAL', border: 'X', music: 'town', weather: 'data', tint: 'rgba(120,70,255,0.06)', onEnter: 'ch5_intro',
     grid: norm([
       'XXXXVXXXXXXXXXXXXXXXXVXXXX',
       'XTTTTTTTTTTTXXTTTTTTTTTTTX',
@@ -323,7 +323,7 @@ export const MAPS = {
 
   // ----------------------------------------------------- FINALE: THE VAULT
   vault: {
-    name: 'VAULT OF SHARED SECRETS', border: 'X', music: 'vault', tint: 'rgba(90,40,170,0.10)', onEnter: 'vault_intro',
+    name: 'VAULT OF SHARED SECRETS', border: 'X', music: 'vault', weather: 'data', tint: 'rgba(90,40,170,0.10)', onEnter: 'vault_intro',
     encounters: { rate: 0.07, groups: ['rogueagent', 'rogueagent'] },
     grid: norm([
       'XXXXXVXXXXXXXXXXXXXXVXXXXX',

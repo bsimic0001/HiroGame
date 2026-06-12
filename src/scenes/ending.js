@@ -11,7 +11,9 @@ const W = 240, H = 160;
 const posterImg = new Image();
 posterImg.src = 'assets/hiro/poster.jpg';
 const cheerImg = new Image();
-cheerImg.src = 'assets/hiro/hiro-cheer.png';
+cheerImg.src = 'assets/hiro/v2/pose1.png'; // zen sit — the realm at peace
+const runImg = new Image();
+runImg.src = 'assets/hiro/v2/pose3.png'; // finish-line run
 
 const VAULT_LINES = [
   'THE VAULT OF SHARED SECRETS SHUDDERS.',
@@ -96,7 +98,8 @@ Scenes.register('ending', {
       ctx.fillStyle = 'rgba(255,255,255,0.7)';
       for (const s of sparks.slice(0, 25)) ctx.fillRect(s.x | 0, s.y | 0, 1, 1);
       if (cheerImg.complete && cheerImg.naturalWidth) {
-        ctx.drawImage(cheerImg, W / 2 - 36, 14 + Math.sin(t * 2) * 2, 72, 72);
+        const cw = 64, chh = Math.round(cw * (cheerImg.naturalHeight / cheerImg.naturalWidth));
+        ctx.drawImage(cheerImg, W / 2 - cw / 2, 16 + Math.sin(t * 2) * 2, cw, chh);
       }
       const raw = EPILOGUE[Math.min(line, EPILOGUE.length - 1)];
       const sep = raw.indexOf('|');
@@ -121,6 +124,10 @@ Scenes.register('ending', {
     }
     ctx.fillStyle = 'rgba(12,10,20,0.55)';
     ctx.fillRect(0, 0, W, H);
+    if (runImg.complete && runImg.naturalWidth) {
+      const rw = 70, rh = Math.round(rw * (runImg.naturalHeight / runImg.naturalWidth));
+      ctx.drawImage(runImg, W - rw - 6, H - rh - 8 + Math.sin(t * 2) * 2, rw, rh);
+    }
     drawTextCentered(ctx, '* THE END *', W / 2, 22, '#ffffff');
     const total = Object.keys(ENEMIES).length;
     const unlocked = Object.keys(ENEMIES).filter((id) => Game.s.codex[id]).length;

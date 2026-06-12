@@ -24,6 +24,12 @@ const SHEETS = [
   { src: 'mouse', out: 'mouse', targetH: 38 },
   // Single battle frame: row 2 col 2 = presenting the glowing lure.
   { src: 'phisherking', out: 'phisherking', targetH: 56, frame: [2, 2] },
+  // Palette-swap castings: recolor saturated pixels in [hueMin,hueMax]
+  // (degrees, wrapping) to hueTo, preserving shading. Quality of the
+  // generated art carries over exactly.
+  { src: 'villager-red', out: 'villager-green', targetH: 38, recolor: { hueMin: 330, hueMax: 16, satMin: 0.45, hueTo: 115 } },
+  { src: 'villager-red', out: 'clerk-m', targetH: 38, recolor: { hueMin: 330, hueMax: 16, satMin: 0.45, hueTo: 175 } },
+  { src: 'villager-teal', out: 'villager-pink', targetH: 38, recolor: { hueMin: 150, hueMax: 200, satMin: 0.25, hueTo: 320 } },
 ];
 const CELL_W = 40, CELL_H = 44;
 
@@ -69,6 +75,31 @@ const results = await page.evaluate(async ({ sheets, CELL_W, CELL_H }) => {
       if (y < H - 1) stack.push(p + W);
     }
     for (let p = 0; p < W * H; p++) if (seen[p]) d[p * 4 + 3] = 0;
+
+    // Optional hue-shift recolor (palette-swap castings).
+    if (sheet.recolor) {
+      const { hueMin, hueMax, satMin, hueTo } = sheet.recolor;
+      const inRange = (h) => (hueMin <= hueMax ? h >= hueMin && h <= hueMax : h >= hueMin || h <= hueMax);
+      for (let p = 0; p < W * H; p++) {
+        if (!d[p * 4 + 3]) continue;
+        const r = d[p * 4] / 255, g = d[p * 4 + 1] / 255, b = d[p * 4 + 2] / 255;
+        const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, df = mx - mn;
+        if (!df) continue;
+        const s = df / (1 - Math.abs(2 * l - 1));
+        let h;
+        if (mx === r) h = 60 * (((g - b) / df) % 6);
+        else if (mx === g) h = 60 * ((b - r) / df + 2);
+        else h = 60 * ((r - g) / df + 4);
+        if (h < 0) h += 360;
+        if (s < satMin || !inRange(h)) continue;
+        const C = (1 - Math.abs(2 * l - 1)) * s, X = C * (1 - Math.abs(((hueTo / 60) % 2) - 1)), m = l - C / 2;
+        const seg = Math.floor(hueTo / 60) % 6;
+        const [nr, ng, nb] = [[C, X, 0], [X, C, 0], [0, C, X], [0, X, C], [X, 0, C], [C, 0, X]][seg];
+        d[p * 4] = Math.round((nr + m) * 255);
+        d[p * 4 + 1] = Math.round((ng + m) * 255);
+        d[p * 4 + 2] = Math.round((nb + m) * 255);
+      }
+    }
     c.putImageData(id, 0, 0);
 
     // Slice 4x4, trim, scale, compose. `frame: [row,col]` bakes a single

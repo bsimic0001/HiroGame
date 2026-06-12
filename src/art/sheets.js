@@ -44,6 +44,7 @@ export function scaleSheetFrame(frame, factor) {
 const NAMES = [
   'hiro', 'sage', 'villager-red', 'villager-teal', 'kid',
   'suit-woman', 'hoodie-boy', 'doctor', 'robot', 'mouse',
+  'villager-green', 'villager-pink', 'clerk-m',
 ];
 // Standalone frames (not walk cycles) baked at natural size.
 const SINGLES = ['phisherking'];

@@ -474,6 +474,37 @@ const KOBOLD = [
 
 function deco(rows) { return compile(rows); }
 
+// --------------------------------------------------- AMBIENT CRITTERS
+export const CRITTERS = {
+  bunny: compile([
+    '.k..k.....',
+    'knkknk....',
+    'knnnnk....',
+    'knknknk...',
+    '.knnnnnkk.',
+    '.knnnnnnwk',
+    '..knn.nnk.',
+    '...k...k..',
+  ]),
+  bird: compile([
+    '..kk....',
+    '.kttbk..',
+    'kytkttk.',
+    '.kttttbk',
+    '..kbttk.',
+    '...ktk..',
+    '...k.k..',
+  ]),
+  crab: compile([
+    'k.k....k.k',
+    '.kk.kk.kk.',
+    '.koooooik.',
+    'kowoooowok',
+    '.koooooik.',
+    '.k.k..k.k.',
+  ]),
+};
+
 export const ENEMY_ART = {
   phishkoi: deco(PHISHKOI),
   spearphish: deco(SPEARPHISH),

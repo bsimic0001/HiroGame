@@ -38,7 +38,7 @@ function norm(rows, border) {
 export const MAPS = {
   // ------------------------------------------------------ CH1: LOGINSHIRE
   loginshire: {
-    name: 'LOGINSHIRE VILLAGE', border: 't', music: 'town', weather: 'leaves', onEnter: 'intro',
+    name: 'LOGINSHIRE VILLAGE', border: 't', music: 'town', weather: 'leaves', critters: ['bunny', 'bunny', 'bird'], onEnter: 'intro',
     grid: norm([
       'tttttttttttttttttttttttttt',
       'ttgggggiggggggggggggigggtt',
@@ -72,7 +72,7 @@ export const MAPS = {
 
   // ------------------------------------------------------ CH1: THE SHOALS
   shoals: {
-    name: 'THE PHISHING SHOALS', border: 'w', music: 'overworld', weather: 'spray',
+    name: 'THE PHISHING SHOALS', border: 'w', music: 'overworld', weather: 'spray', critters: ['crab', 'crab', 'bird'],
     encounters: { rate: 0.055, groups: ['phishkoi', 'phishkoi', 'spearphish', 'angler'] },
     grid: norm([
       'wwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
@@ -180,7 +180,7 @@ export const MAPS = {
 
   // ---------------------------------------------------- CH3: HELP DESK KEEP
   keep: {
-    name: 'HELP DESK KEEP', border: 'W', music: 'town', weather: 'dust', tint: 'rgba(255,170,80,0.04)', onEnter: 'ch3_intro',
+    name: 'HELP DESK KEEP', border: 'W', music: 'town', weather: 'dust', critters: ['bird'], tint: 'rgba(255,170,80,0.04)', onEnter: 'ch3_intro',
     grid: norm([
       'WWjWWEWWWWWWjWWWWWEWWWjWWW',
       'WqqFFFFFFFFFFFFFFFFFFFFqqW',

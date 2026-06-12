@@ -758,12 +758,101 @@ export const TILES = {
 
 // Context-aware decor: transparent overlays composited onto whatever ground
 // tile actually surrounds them, so a sign in a tech city sits on tech floor.
-function overlayOnly(rows, ox = 0, oy = 0) {
+function overlayOnly(rows, ox = 0, oy = 0, w = TILE, h = TILE) {
   const cv = document.createElement('canvas');
-  cv.width = TILE; cv.height = TILE;
+  cv.width = w; cv.height = h;
   overlay(cv.getContext('2d'), rows, ox, oy);
   return cv;
 }
+
+// ---- tall trees (16x28): canopies overlap the tile behind, GBA-forest style
+export const TALL_TREES = [
+  // oak: stacked round lobes, sunlit crown, berries
+  overlayOnly([
+    '......kkkk......',
+    '....kkxxxxkk....',
+    '...kxxxggxxxk...',
+    '..kxxgggggxxgk..',
+    '..kxgggrggggggk.',
+    '.kgggggggggAggk.',
+    '.kggAgggggAAggk.',
+    'kxggAAgggggggggk',
+    'kxgggggrggggAAgk',
+    'kggggggggAggAAgk',
+    'kAgggAgggAAggggk',
+    '.kAgAAggggggrAk.',
+    '.kAAggggAggggAk.',
+    '..kAAggAAgggAk..',
+    '...kAAAAAAAAk...',
+    '....kkAAAAkk....',
+    '......kkkk......',
+    '.....kNYNk......',
+    '.....kNYDk......',
+    '.....kNYDk......',
+    '....kkNYDkk.....',
+    '...kDkDDDkDk....',
+    '....kkkkkkk.....',
+  ], 0, 5, 16, 28),
+  // pine: stacked dark triangles with bright tips
+  overlayOnly([
+    '.......kk.......',
+    '......kxxk......',
+    '.....kxggAk.....',
+    '....kxgggAAk....',
+    '.....kggAAk.....',
+    '....kxggggAk....',
+    '...kxggggAAAk...',
+    '..kxgggggAAAAk..',
+    '....kgggggAk....',
+    '...kxgggggAAk...',
+    '..kxggggggAAAk..',
+    '.kxggggggAAAAAk.',
+    '..kggggggggAAk..',
+    '.kxggggggggAAAk.',
+    'kxggggggggAAAAAk',
+    'kAAAAAAAAAAAAAAk',
+    '.....kkNNkk.....',
+    '......kNDk......',
+    '......kNDk......',
+    '.....kkDDkk.....',
+    '....kkkkkkkk....',
+  ], 0, 7, 16, 28),
+  // blossom: pink-flecked crown
+  overlayOnly([
+    '......kkkk......',
+    '....kkxfxxkk....',
+    '...kxxxggfxxk...',
+    '..kxfgggggxxgk..',
+    '..kxggfggggwggk.',
+    '.kggggggfggAggk.',
+    '.kgfAgggggAAgfk.',
+    'kxggAAggfggggggk',
+    'kxgggggwggggAAgk',
+    'kgfggggggAgfAAgk',
+    'kAgggAgfgAAggggk',
+    '.kAgAAggggggfAk.',
+    '.kAAgfggAggggAk.',
+    '..kAAggAAggfAk..',
+    '...kAAAAAAAAk...',
+    '....kkAAAAkk....',
+    '......kkkk......',
+    '.....kNYNk......',
+    '.....kNYDk......',
+    '.....kNYDk......',
+    '....kkNYDkk.....',
+    '...kDkDDDkDk....',
+    '....kkkkkkk.....',
+  ], 0, 5, 16, 28),
+];
+
+// ---- tiny ground scatter, hash-placed on grass so no two screens look alike
+export const SCATTER = [
+  overlayOnly(['.A.', 'AxA', '.A.'], 0, 0, 4, 4),                  // sprig
+  overlayOnly(['x.x', '.A.', 'x.x'], 0, 0, 4, 4),                  // seedling
+  overlayOnly(['.f.', 'fyf', '.f.'], 0, 0, 4, 4),                  // bloom
+  overlayOnly(['mm', 'cm'], 0, 0, 3, 3),                           // pebble
+  overlayOnly(['.w.', 'wfw', '.w.'], 0, 0, 4, 4),                  // daisy
+];
 
 export const OVERLAYS = {
   sign: overlayOnly([

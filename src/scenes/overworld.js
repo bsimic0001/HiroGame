@@ -5,8 +5,8 @@ import { Game } from '../engine/state.js';
 import { drawText, drawTextCentered } from '../engine/font.js';
 import { Dialog, Menu, panel } from '../engine/ui.js';
 import { MAPS, SOLID, TILE_FOR } from '../data/maps.js';
-import { TILES, TILE, OVERLAYS } from '../art/tiles.js';
-import { HIRO, NPCS } from '../art/sprites.js';
+import { TILES, TILE, OVERLAYS, TALL_TREES, SCATTER } from '../art/tiles.js';
+import { HIRO, NPCS, CRITTERS } from '../art/sprites.js';
 import { ENEMY_ART } from '../art/sprites.js';
 import { getDialog } from '../data/script.js';
 import { Weather } from '../engine/weather.js';
@@ -26,6 +26,56 @@ let moving = false, mx = 0, my = 0; // movement target px
 let animT = 0, fade = 0;
 let bannerT = 0; // map-name banner visibility timer
 let graceSteps = 0; // steps remaining with no random encounters
+let critters = []; // ambient wildlife
+
+function spawnCritters() {
+  critters = [];
+  const gw = map.grid[0].length, gh = map.grid.length;
+  for (const kind of map.critters || []) {
+    for (let tries = 0; tries < 40; tries++) {
+      const x = 1 + Math.floor(Math.random() * (gw - 2));
+      const y = 1 + Math.floor(Math.random() * (gh - 2));
+      if (walkable(x, y) && !portalAt(x, y)) {
+        critters.push({
+          kind, tx: x, ty: y, px: x * TILE, py: y * TILE,
+          fx: x * TILE, fy: y * TILE, hopT: 0, wait: 1 + Math.random() * 2,
+        });
+        break;
+      }
+    }
+  }
+}
+
+function updateCritters(dt) {
+  for (const cr of critters) {
+    if (cr.hopT > 0) {
+      cr.hopT = Math.max(0, cr.hopT - dt * 2.8);
+      const u = 1 - cr.hopT;
+      cr.px = cr.fx + (cr.tx * TILE - cr.fx) * u;
+      cr.py = cr.fy + (cr.ty * TILE - cr.fy) * u;
+      continue;
+    }
+    cr.wait -= dt;
+    if (cr.wait > 0) continue;
+    cr.wait = 0.9 + Math.random() * 2.2;
+    // pick a hop: flee the player if close, otherwise wander
+    const pdx = Game.s.x - cr.tx, pdy = Game.s.y - cr.ty;
+    const near = Math.abs(pdx) + Math.abs(pdy) <= 3;
+    let dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    if (near) dirs = dirs.filter(([dx2, dy2]) => dx2 * pdx + dy2 * pdy <= 0);
+    const flies = cr.kind === 'bird';
+    const ok = dirs.filter(([dx2, dy2]) => {
+      const nx = cr.tx + dx2, ny = cr.ty + dy2;
+      if (nx <= 0 || ny <= 0 || nx >= map.grid[0].length - 1 || ny >= map.grid.length - 1) return false;
+      return flies ? !SOLID.has(tileAt(nx, ny)) || tileAt(nx, ny) === 't' : walkable(nx, ny) && !portalAt(nx, ny);
+    });
+    if (!ok.length) continue;
+    const [dx2, dy2] = ok[Math.floor(Math.random() * ok.length)];
+    cr.fx = cr.px; cr.fy = cr.py;
+    cr.tx += dx2; cr.ty += dy2;
+    cr.hopT = 1;
+  }
+}
 
 function tileAt(x, y) {
   if (!map || y < 0 || y >= map.grid.length || x < 0 || x >= map.grid[0].length) return 'W';
@@ -65,6 +115,7 @@ function loadMap(id) {
   }
   Audio.play(map.music || 'overworld');
   Weather.set(map.weather);
+  spawnCritters();
   bannerT = 3;
   graceSteps = 8; // breathing room when entering a map
   Game.save();
@@ -233,6 +284,7 @@ Scenes.register('overworld', {
   update(dt) {
     animT += dt;
     Weather.update(dt);
+    updateCritters(dt);
     if (fade > 0) fade = Math.max(0, fade - dt);
     if (bannerT > 0) bannerT -= dt;
 
@@ -336,6 +388,7 @@ Scenes.register('overworld', {
     const waterFrame = Math.floor(animT * 2) % 2 === 0 ? 'waterA' : 'waterB';
     const flameFrame = Math.floor(animT * 5) % 2 === 0 ? 'A' : 'B';
     const lights = []; // collected glow sources for the lighting pass
+    const drawables = []; // depth-sorted: tall trees, critters, NPCs, player
     // out-of-bounds reads return the same char, so map borders stay seamless
     const charAt = (x, y) => (x < 0 || y < 0 || x >= gw2 || y >= gh2) ? null : map.grid[y][x];
     const GRASSY = new Set(['g', 'f', 'i', 't', 'u', 'n']);
@@ -348,12 +401,18 @@ Scenes.register('overworld', {
         if (ch === 'V') tileName = 'sconce' + flameFrame;
         if (ch === 'J') tileName = 'brazier' + flameFrame;
         if (ch === 'd' && map.border === 'X') tileName = 'doorTech'; // tech cities get tech doors
-        if (ch === 't') {
-          const v = (x * 7 + y * 13) % 5;
-          if (v === 1) tileName = 'treePine';
-          else if (v === 3) tileName = 'treeBlossom';
-        }
+        if (ch === 't') tileName = 'grass'; // tall tree sprite drawn in the depth pass
         const dx = x * TILE - camX, dy = y * TILE - camY;
+        if (ch === 't') {
+          const tree = TALL_TREES[(x * 7 + y * 13) % TALL_TREES.length];
+          // organic jitter so bordering canopies interlock like a real treeline
+          const jx = ((x * 31 + y * 17) % 5) - 2;
+          const jy = (x + y) % 2 === 0 ? 2 : -1;
+          drawables.push({
+            y: y * TILE + jy,
+            draw: () => ctx.drawImage(tree, dx + jx, dy + TILE - tree.height + jy),
+          });
+        }
         // signs/lamps/planters sit on whatever ground surrounds them
         const DECOR_OVERLAY = { S: 'sign', l: 'lamp', Q: 'planter' };
         if (DECOR_OVERLAY[ch]) {
@@ -403,13 +462,37 @@ Scenes.register('overworld', {
           if (land(x - 1, y)) for (let f = 1 + foamShift; f < 15; f += 5) ctx.fillRect(dx + 2, dy + f, 1, 2);
           if (land(x + 1, y)) for (let f = 2 + foamShift; f < 15; f += 5) ctx.fillRect(dx + 13, dy + f, 1, 2);
         }
-        // --- soft grass fringe creeping over path edges ---
+        // --- scalloped grass edge creeping over paths, with dotted inner trim ---
         if (ch === 'p') {
-          ctx.fillStyle = '#3f9e54';
-          if (GRASSY.has(charAt(x, y - 1))) { ctx.fillRect(dx, dy, 16, 1); ctx.fillRect(dx + 2, dy + 1, 2, 1); ctx.fillRect(dx + 9, dy + 1, 3, 1); }
-          if (GRASSY.has(charAt(x, y + 1))) { ctx.fillRect(dx, dy + 15, 16, 1); ctx.fillRect(dx + 4, dy + 14, 3, 1); ctx.fillRect(dx + 11, dy + 14, 2, 1); }
-          if (GRASSY.has(charAt(x - 1, y))) { ctx.fillRect(dx, dy, 1, 16); ctx.fillRect(dx + 1, dy + 3, 1, 2); ctx.fillRect(dx + 1, dy + 10, 1, 3); }
-          if (GRASSY.has(charAt(x + 1, y))) { ctx.fillRect(dx + 15, dy, 1, 16); ctx.fillRect(dx + 14, dy + 5, 1, 3); ctx.fillRect(dx + 14, dy + 12, 1, 2); }
+          const scallop = (horiz, at) => {
+            ctx.fillStyle = '#3f9e54';
+            for (let f = 0; f < 16; f += 4) {
+              const depth = 2 + ((f / 4 + x + y) % 2); // wavy 2-3px bumps
+              if (horiz) ctx.fillRect(dx + f, at === 0 ? dy : dy + 16 - depth, 4, depth);
+              else ctx.fillRect(at === 0 ? dx : dx + 16 - depth, dy + f, depth, 4);
+            }
+            ctx.fillStyle = '#e3c489'; // dotted trim on the path side
+            for (let f = 1; f < 16; f += 5) {
+              if (horiz) ctx.fillRect(dx + f, at === 0 ? dy + 4 : dy + 10, 2, 1);
+              else ctx.fillRect(at === 0 ? dx + 4 : dx + 10, dy + f, 1, 2);
+            }
+          };
+          if (GRASSY.has(charAt(x, y - 1))) scallop(true, 0);
+          if (GRASSY.has(charAt(x, y + 1))) scallop(true, 1);
+          if (GRASSY.has(charAt(x - 1, y))) scallop(false, 0);
+          if (GRASSY.has(charAt(x + 1, y))) scallop(false, 1);
+        }
+        // --- hash-scattered sprigs, blooms and pebbles so grass never repeats ---
+        if (ch === 'g' || ch === 't') {
+          const hsh = (x * 2654435761 ^ y * 97) >>> 0;
+          if (hsh % 5 === 0) {
+            const spr = SCATTER[hsh % SCATTER.length];
+            ctx.drawImage(spr, dx + 2 + (hsh % 9), dy + 3 + ((hsh >> 3) % 9));
+          }
+          if (hsh % 7 === 3) { // dappled light patch
+            ctx.fillStyle = 'rgba(125,215,150,0.18)';
+            ctx.fillRect(dx + (hsh % 6), dy + ((hsh >> 2) % 6), 8, 6);
+          }
         }
         // --- ambient shadow at the foot of anything solid above ---
         const north = charAt(x, y - 1);
@@ -427,7 +510,18 @@ Scenes.register('overworld', {
       ctx.ellipse(cx2, cy2, w / 2, 2, 0, 0, Math.PI * 2);
       ctx.fill();
     };
-    const drawables = [];
+    // ambient critters
+    for (const cr of critters) {
+      const img = CRITTERS[cr.kind];
+      drawables.push({
+        y: cr.py,
+        draw: () => {
+          const hop = cr.hopT > 0 ? Math.sin(cr.hopT * Math.PI) * 4 : 0;
+          shadow(cr.px - camX + 5, cr.py - camY + 14, 8);
+          ctx.drawImage(img, Math.round(cr.px - camX), Math.round(cr.py - camY + 6 - hop));
+        },
+      });
+    }
     for (const npc of map.npcs) {
       if (npc.hideOnFlag && Game.s.flags[npc.hideOnFlag]) continue;
       if (!npc.sprite) continue;

@@ -47,7 +47,10 @@ const NAMES = [
   'villager-green', 'villager-pink', 'clerk-m',
 ];
 // Standalone frames (not walk cycles) baked at natural size.
-const SINGLES = ['phisherking'];
+const SINGLES = [
+  'phisherking', 'lazarus', 'vishimp', 'pushbomber', 'keylogger',
+  'simshift', 'stufferzombie', 'scatteredspider', 'stuffer',
+];
 const images = await Promise.all(
   [...NAMES, ...SINGLES].map((n) => load(`assets/sprites/${n}.png`)),
 );

@@ -22,8 +22,17 @@ const SHEETS = [
   { src: 'doctor', out: 'doctor', targetH: 36 },
   { src: 'robot', out: 'robot', targetH: 34 },
   { src: 'mouse', out: 'mouse', targetH: 38 },
-  // Single battle frame: row 2 col 2 = presenting the glowing lure.
+  // Single battle frames: [row, col] picks the best pose off a 4x4
+  // expression sheet. Heights match the old ASCII sprites they replace.
   { src: 'phisherking', out: 'phisherking', targetH: 56, frame: [2, 2] },
+  { src: 'lazarus', out: 'lazarus', targetH: 44, frame: [0, 0] },
+  { src: 'vishimp', out: 'vishimp', targetH: 40, frame: [0, 0] },
+  { src: 'pushbomber', out: 'pushbomber', targetH: 42, frame: [0, 0] },
+  { src: 'keylogger', out: 'keylogger', targetH: 40, frame: [0, 0] },
+  { src: 'simshift', out: 'simshift', targetH: 36, frame: [0, 0] },
+  { src: 'stufferzombie', out: 'stufferzombie', targetH: 46, frame: [2, 2] },
+  { src: 'scatteredspider', out: 'scatteredspider', targetH: 58, frame: [1, 1] },
+  { src: 'stuffer', out: 'stuffer', targetH: 58, frame: [2, 2] },
   // Palette-swap castings: recolor saturated pixels in [hueMin,hueMax]
   // (degrees, wrapping) to hueTo, preserving shading. Quality of the
   // generated art carries over exactly.
@@ -32,6 +41,10 @@ const SHEETS = [
   { src: 'villager-teal', out: 'villager-pink', targetH: 38, recolor: { hueMin: 150, hueMax: 200, satMin: 0.25, hueTo: 320 } },
 ];
 const CELL_W = 40, CELL_H = 44;
+
+// Optional args: bake only the named outputs (node scripts/bake-sheets.mjs stuffer ...)
+const only = process.argv.slice(2);
+const selected = only.length ? SHEETS.filter((s) => only.includes(s.out)) : SHEETS;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -119,30 +132,49 @@ const results = await page.evaluate(async ({ sheets, CELL_W, CELL_H }) => {
         // Keep only the largest connected blob — drops leaked shadow
         // fragments and specks from neighboring cells.
         const label = new Int32Array(CW * CH).fill(-1);
+        const blobs = [];
         let best = -1, bestSize = 0, nLabels = 0;
         for (let p0 = 0; p0 < CW * CH; p0++) {
           if (label[p0] >= 0 || cid.data[p0 * 4 + 3] <= 60) continue;
           const q = [p0]; label[p0] = nLabels;
-          let size = 0;
+          let size = 0, colorSum = 0, bx0 = CW, bx1 = -1, by0 = CH, by1 = -1;
           while (q.length) {
             const p = q.pop(); size++;
             const x = p % CW, y = (p / CW) | 0;
+            colorSum += Math.max(cid.data[p * 4], cid.data[p * 4 + 1], cid.data[p * 4 + 2])
+              - Math.min(cid.data[p * 4], cid.data[p * 4 + 1], cid.data[p * 4 + 2]);
+            if (x < bx0) bx0 = x; if (x > bx1) bx1 = x;
+            if (y < by0) by0 = y; if (y > by1) by1 = y;
             for (const n of [x > 0 && p - 1, x < CW - 1 && p + 1, y > 0 && p - CW, y < CH - 1 && p + CW]) {
               if (n !== false && label[n] < 0 && cid.data[n * 4 + 3] > 60) { label[n] = nLabels; q.push(n); }
             }
           }
+          blobs.push({ size, colorSum, bx0, bx1, by0, by1 });
           if (size > bestSize) { bestSize = size; best = nLabels; }
           nLabels++;
         }
         if (best < 0) continue;
-        // Mask to the winning blob (1px dilated for anti-aliased fringe).
+        const keep = new Uint8Array(nLabels);
+        keep[best] = 1;
+        // Single frames also keep detached saturated blobs (floating
+        // notification badges, aura wisps) that sit fully inside the cell.
+        // Grey shadow remnants and edge leaks from neighbor cells still drop.
+        if (single) {
+          blobs.forEach((b, i) => {
+            if (i === best || b.size < 15 || b.colorSum / b.size < 30) return;
+            if (b.bx0 < 2 || b.by0 < 2 || b.bx1 > CW - 3 || b.by1 > CH - 3) return;
+            keep[i] = 1;
+          });
+        }
+        // Mask to the kept blobs (1px dilated for anti-aliased fringe).
         const masked = new ImageData(CW, CH);
         let x0 = CW, x1 = -1, y0 = CH, y1 = -1;
+        const on = (p) => label[p] >= 0 && keep[label[p]];
         for (let p = 0; p < CW * CH; p++) {
           const x = p % CW, y = (p / CW) | 0;
-          const hit = label[p] === best
-            || (x > 0 && label[p - 1] === best) || (x < CW - 1 && label[p + 1] === best)
-            || (y > 0 && label[p - CW] === best) || (y < CH - 1 && label[p + CW] === best);
+          const hit = on(p)
+            || (x > 0 && on(p - 1)) || (x < CW - 1 && on(p + 1))
+            || (y > 0 && on(p - CW)) || (y < CH - 1 && on(p + CW));
           if (!hit) continue;
           for (let k = 0; k < 4; k++) masked.data[p * 4 + k] = cid.data[p * 4 + k];
           if (x < x0) x0 = x; if (x > x1) x1 = x;
@@ -169,7 +201,7 @@ const results = await page.evaluate(async ({ sheets, CELL_W, CELL_H }) => {
     out[sheet.out] = outCv.toDataURL('image/png');
   }
   return out;
-}, { sheets: SHEETS, CELL_W, CELL_H });
+}, { sheets: selected, CELL_W, CELL_H });
 
 mkdirSync('assets/sprites', { recursive: true });
 for (const [name, url] of Object.entries(results)) {

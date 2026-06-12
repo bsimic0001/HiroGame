@@ -28,6 +28,7 @@ let bannerT = 0; // map-name banner visibility timer
 let graceSteps = 0; // steps remaining with no random encounters
 let critters = []; // ambient wildlife
 let pendingBattle = null; // battle-entry transition: { t, params }
+let entryX = 0, entryY = 0; // where Hiro entered this stage (defeat respawn)
 
 function queueBattle(params) {
   pendingBattle = { t: 0, params };
@@ -237,6 +238,7 @@ function arrive() {
     fade = 0.35;
     loadMap(portal.to);
     setPos(portal.tx, portal.ty);
+    entryX = portal.tx; entryY = portal.ty;
     return;
   }
   // random encounters (after a grace window so battles never chain instantly)
@@ -258,6 +260,7 @@ Scenes.register('overworld', {
     if (!map || !returning) {
       map = null;
       loadMap(Game.s.map); // may open the map's intro dialog via say()
+      entryX = Game.s.x; entryY = Game.s.y;
     } else {
       Audio.play(map.music || 'overworld');
     }
@@ -278,7 +281,8 @@ Scenes.register('overworld', {
         });
       }
     } else if (params.fromBattle === 'lose') {
-      say(["HIRO'S SESSION EXPIRED... BUT IDENTITY CAN ALWAYS BE RE-VERIFIED. (RESTORED AT THE LAST SAFE SPOT.)"]);
+      setPos(entryX, entryY); // defeat sends Hiro back to the stage entrance
+      say(["HIRO'S SESSION EXPIRED... HE WAKES AT THE EDGE OF THE AREA, RE-VERIFIED AND HALF-RESTORED."]);
       Game.s.hp = Math.max(8, Math.floor(Game.s.maxHp / 2));
       Game.save();
     } else if (params.fromBattle === 'win') {
@@ -424,9 +428,10 @@ Scenes.register('overworld', {
           // organic jitter so bordering canopies interlock like a real treeline
           const jx = ((x * 31 + y * 17) % 5) - 2;
           const jy = (x + y) % 2 === 0 ? 2 : -1;
+          const tw = tree.width / 2, th = tree.height / 2;
           drawables.push({
             y: y * TILE + jy,
-            draw: () => ctx.drawImage(tree, dx + jx, dy + TILE - tree.height + jy),
+            draw: () => ctx.drawImage(tree, dx + jx, dy + TILE - th + jy, tw, th),
           });
         }
         // signs/lamps/planters sit on whatever ground surrounds them
@@ -436,10 +441,10 @@ Scenes.register('overworld', {
           const near = [charAt(x, y + 1), charAt(x - 1, y), charAt(x + 1, y), charAt(x, y - 1)]
             .find((n) => n && GROUNDS.has(n));
           let baseName = TILE_FOR[near || 'F'] || 'floor';
-          ctx.drawImage(TILES[baseName], dx, dy);
-          ctx.drawImage(OVERLAYS[DECOR_OVERLAY[ch]], dx, dy);
+          ctx.drawImage(TILES[baseName], dx, dy, TILE, TILE);
+          ctx.drawImage(OVERLAYS[DECOR_OVERLAY[ch]], dx, dy, TILE, TILE);
         } else {
-          ctx.drawImage(TILES[tileName], dx, dy);
+          ctx.drawImage(TILES[tileName], dx, dy, TILE, TILE);
         }
 
         // collect light sources for the glow pass
@@ -500,10 +505,10 @@ Scenes.register('overworld', {
         }
         // --- hash-scattered sprigs, blooms and pebbles so grass never repeats ---
         if (ch === 'g' || ch === 't') {
-          const hsh = (x * 2654435761 ^ y * 97) >>> 0;
+          const hsh = (Math.imul(x + 7, 2654435761) ^ Math.imul(y + 3, 97561)) >>> 0;
           if (hsh % 5 === 0) {
             const spr = SCATTER[hsh % SCATTER.length];
-            ctx.drawImage(spr, dx + 2 + (hsh % 9), dy + 3 + ((hsh >> 3) % 9));
+            ctx.drawImage(spr, dx + 2 + (hsh % 9), dy + 3 + ((hsh >> 3) % 9), spr.width / 2, spr.height / 2);
           }
           if (hsh % 7 === 3) { // dappled light patch
             ctx.fillStyle = 'rgba(125,215,150,0.18)';
@@ -534,7 +539,7 @@ Scenes.register('overworld', {
         draw: () => {
           const hop = cr.hopT > 0 ? Math.sin(cr.hopT * Math.PI) * 4 : 0;
           shadow(cr.px - camX + 5, cr.py - camY + 14, 8);
-          ctx.drawImage(img, Math.round(cr.px - camX), Math.round(cr.py - camY + 6 - hop));
+          ctx.drawImage(img, Math.round(cr.px - camX), Math.round(cr.py - camY + 6 - hop), img.width / 2, img.height / 2);
         },
       });
     }
@@ -544,13 +549,14 @@ Scenes.register('overworld', {
       let img;
       if (npc.sprite.startsWith('enemy:')) img = ENEMY_ART[npc.sprite.slice(6)];
       else img = NPCS[npc.sprite] || NPCS.villager;
+      const iw = img.width / 2, ih = img.height / 2; // all character art is hi-res
       drawables.push({
         y: npc.y * TILE,
         draw: () => {
-          const dx = npc.x * TILE - camX + Math.floor((TILE - img.width) / 2);
-          const dy = npc.y * TILE - camY + (TILE - img.height);
-          shadow(npc.x * TILE - camX + TILE / 2, npc.y * TILE - camY + TILE - 1, Math.min(img.width, 18));
-          ctx.drawImage(img, dx, dy);
+          const dx = npc.x * TILE - camX + Math.floor((TILE - iw) / 2);
+          const dy = npc.y * TILE - camY + (TILE - ih);
+          shadow(npc.x * TILE - camX + TILE / 2, npc.y * TILE - camY + TILE - 1, Math.min(iw, 18));
+          ctx.drawImage(img, dx, dy, iw, ih);
         },
       });
     }
@@ -561,7 +567,7 @@ Scenes.register('overworld', {
       y: py,
       draw: () => {
         shadow(Math.round(px) - camX + 7, Math.round(py) - camY + TILE - 1, 11);
-        ctx.drawImage(frame, Math.round(px) - camX, Math.round(py) - camY + (TILE - frame.height));
+        ctx.drawImage(frame, Math.round(px) - camX, Math.round(py) - camY + (TILE - frame.height / 2), frame.width / 2, frame.height / 2);
       },
     });
     drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());

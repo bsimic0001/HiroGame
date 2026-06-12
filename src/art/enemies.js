@@ -1,6 +1,10 @@
 // High-detail battle sprites for the Phantom Legion.
 // Every adversary's design tells you what identity attack it is.
-import { compile, glitchify } from './palette.js';
+import { compile, glitchify, scale2x, shade } from './palette.js';
+
+// Pixel-art finishing pipeline: double resolution with rounded contours,
+// then bake in top-lit volumetric shading. GBA polish for hand-set pixels.
+const polish = (cv) => shade(scale2x(cv));
 
 // PHISH KOI 38x24 — fat koi, white belly, orange patches, a hook in its lip
 // trailing line, blowing a bubble. The entry-level lure.
@@ -28,21 +32,26 @@ const PHISHKOI = [
   '.....kOOk.............................',
   '......kk..............................',
 ];
-// SPEAR-PHISH 42x18 — barracuda with a steel spear snout, motion streaks.
+// SPEAR-PHISH 42x18 — barracuda with a steel spear snout: dorsal fin rays,
+// gill slit, lateral scale specks, pale belly, glinting eye.
 const SPEARPHISH = [
-  '......................kkkk............',
-  '..................kkkkbbbbkk..........',
-  '..............kkkkbbbbbbbbbbk...kkk...',
-  '...........kkbbbbbbwkbbbbbbbbk.kbbBk..',
-  'kkkkkkkkkkkmbbbbbbbbbbbbBBbbbbkbbbBk..',
-  'cmmmmmmmmmmckbbbbbbbbbbbbBBbbbkbbbbk..',
-  'kkkkkkkkkkkmbbBBbbbbbbbbbbbbbkkbbBk...',
-  '...........kkbBBbbbwwbbbbBBbbkbbBk....',
-  '..............kkbbbbbbbbbbbbbkkbk.....',
-  '..................kkkkbbbbbbbk.k......',
-  '......................kkkkkk..........',
-  '..w..w.................................',
-  'ww..ww.................................',
+  '.....................kkkkkk............',
+  '....................kbBkbBkk...........',
+  '..................kkbbbbbbbbkk.........',
+  '..............kkkkbbbbbbbbbbbbk..kkk...',
+  '...........kkbbbbbbbbbbbbbbbbbbkkbbBk..',
+  '..........kbbbbwkkbbbbbbBbbbbbbkbbbBk..',
+  '...........kkbbwkwbbbbbbbbBbbbbbkbbbk..',
+  'kkkkkkkkkkkmkbbbbbbbkbbbbbbbbbbkbbbBk..',
+  'cmmmmmmmmmmcmkbbbbbbkbbbBbbBbbbkkbbbk..',
+  'kkkkkkkkkkkmkwwbbbbbkbbbbbbbbbkbkbBk...',
+  '..........kwwwwwwbbbbbbbBbbbbbkbbbk....',
+  '...........kkwwwwwwbbbbbbbbbkkkbBk.....',
+  '..............kkwwwwbbbbbbbbk..kk......',
+  '..................kkkkbBkbBkk..........',
+  '......................kkkkkk...........',
+  '..w..w..................................',
+  'ww..ww..................................',
 ];
 // LURE ANGLER 38x28 — deep-sea horror dangling a glowing FAKE LOGIN WINDOW.
 const ANGLER = [
@@ -413,21 +422,21 @@ const SHADOW_HIRO = [
 ];
 
 export const ENEMY_ART = {
-  phishkoi: compile(PHISHKOI),
-  spearphish: compile(SPEARPHISH),
-  angler: compile(ANGLER),
-  lazarus: compile(LAZARUS),
-  doppel: glitchify(compile(SHADOW_HIRO), 7),
-  vishimp: compile(VISHIMP),
-  pushbomber: compile(PUSHBOMBER),
-  keylogger: compile(KEYLOGGER),
-  tokenthief: compile(TOKENTHIEF),
-  simshift: compile(SIMSHIFT),
-  stufferzombie: compile(STUFFERZOMBIE),
-  rogueagent: compile(ROGUEAGENT),
-  phisherking: compile(PHISHERKING),
-  doppelprime: glitchify(compile(SHADOW_HIRO), 13),
-  scatteredspider: compile(SCATTEREDSPIDER),
-  stuffer: compile(STUFFER, { c: 'm', m: 'M' }), // weathered stone, not paper-white
-  kobold: compile(KOBOLD),
+  phishkoi: polish(compile(PHISHKOI)),
+  spearphish: polish(compile(SPEARPHISH)),
+  angler: polish(compile(ANGLER)),
+  lazarus: polish(compile(LAZARUS)),
+  doppel: polish(glitchify(compile(SHADOW_HIRO), 7)),
+  vishimp: polish(compile(VISHIMP)),
+  pushbomber: polish(compile(PUSHBOMBER)),
+  keylogger: polish(compile(KEYLOGGER)),
+  tokenthief: polish(compile(TOKENTHIEF)),
+  simshift: polish(compile(SIMSHIFT)),
+  stufferzombie: polish(compile(STUFFERZOMBIE)),
+  rogueagent: polish(compile(ROGUEAGENT)),
+  phisherking: polish(compile(PHISHERKING)),
+  doppelprime: polish(glitchify(compile(SHADOW_HIRO), 13)),
+  scatteredspider: polish(compile(SCATTEREDSPIDER)),
+  stuffer: polish(compile(STUFFER, { c: 'm', m: 'M' })), // weathered stone
+  kobold: polish(compile(KOBOLD)),
 };

@@ -71,6 +71,64 @@ export function mirror(cv) {
   return out;
 }
 
+// Scale2x: doubles resolution while rounding staircase edges into curves —
+// the difference between chunky 8-bit blobs and smooth GBA-era sprites.
+export function scale2x(cv) {
+  const w = cv.width, h = cv.height;
+  const src = cv.getContext('2d').getImageData(0, 0, w, h);
+  const s = new Uint32Array(src.data.buffer);
+  const out = document.createElement('canvas');
+  out.width = w * 2; out.height = h * 2;
+  const dstImg = out.getContext('2d').createImageData(w * 2, h * 2);
+  const d = new Uint32Array(dstImg.data.buffer);
+  const px = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? 0 : s[y * w + x];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const P = s[y * w + x];
+      const A = px(x, y - 1), B = px(x + 1, y), C = px(x - 1, y), D = px(x, y + 1);
+      let e0 = P, e1 = P, e2 = P, e3 = P;
+      if (C === A && C !== D && A !== B) e0 = A;
+      if (A === B && A !== C && B !== D) e1 = B;
+      if (D === C && D !== B && C !== A) e2 = C;
+      if (B === D && B !== A && D !== C) e3 = D;
+      const o = (y * 2) * (w * 2) + x * 2;
+      d[o] = e0; d[o + 1] = e1;
+      d[o + w * 2] = e2; d[o + w * 2 + 1] = e3;
+    }
+  }
+  out.getContext('2d').putImageData(dstImg, 0, 0);
+  return out;
+}
+
+// Top-lit volumetric shading: lighten pixels along upper contours, darken
+// along lower ones, so flat fills read as rounded forms.
+export function shade(cv) {
+  const w = cv.width, h = cv.height;
+  const c = cv.getContext('2d');
+  const img = c.getImageData(0, 0, w, h);
+  const p = img.data;
+  const alphaAt = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? 0 : p[(y * w + x) * 4 + 3];
+  const lumAt = (x, y) => { const i = (y * w + x) * 4; return p[i] + p[i + 1] + p[i + 2]; };
+  const mark = [];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      if (p[i + 3] < 40 || lumAt(x, y) < 110) continue; // skip transparent + outlines
+      const openAbove = alphaAt(x, y - 1) < 40 || (alphaAt(x, y - 1) > 0 && lumAt(x, Math.max(0, y - 1)) < 110);
+      const openBelow = alphaAt(x, y + 1) < 40 || (y + 1 < h && lumAt(x, y + 1) < 110);
+      if (openAbove && !openBelow) mark.push([i, 1.18]);
+      else if (openBelow && !openAbove) mark.push([i, 0.78]);
+    }
+  }
+  for (const [i, f] of mark) {
+    p[i] = Math.min(255, p[i] * f);
+    p[i + 1] = Math.min(255, p[i + 1] * f);
+    p[i + 2] = Math.min(255, p[i + 2] * f);
+  }
+  c.putImageData(img, 0, 0);
+  return cv;
+}
+
 // Digital-corruption effect: shifts horizontal slices and sprinkles static.
 // Used for deepfake doppelgangers.
 export function glitchify(cv, seed = 5) {

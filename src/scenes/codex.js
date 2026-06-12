@@ -54,7 +54,8 @@ Scenes.register('codex', {
       const e = ENEMIES[detail];
       panel(ctx, 4, 4, W - 8, H - 8);
       const art = ENEMY_ART[e.art];
-      ctx.drawImage(art, W - art.width - 14, 14);
+      const aw = Math.min(70, art.width), ah = Math.round(art.height * (aw / art.width));
+      ctx.drawImage(art, W - aw - 12, 14, aw, ah);
       drawText(ctx, e.codex.title, 12, 12, '#19d3c5');
       drawText(ctx, `AKA "${e.name}"`, 12, 22, '#8d86b8');
       let y = 38;

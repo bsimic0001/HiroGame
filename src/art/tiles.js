@@ -1,6 +1,8 @@
 // 16x16 environment tiles. Procedural bases textured with a seeded PRNG,
 // decorations drawn as ASCII pixel grids layered on top for crisp detail.
-import { PAL } from './palette.js';
+// Everything is run through scale2x at the bottom of this file so the world
+// renders at single-pixel density on the hi-res canvas.
+import { PAL, scale2x } from './palette.js';
 
 export const TILE = 16;
 
@@ -892,3 +894,10 @@ export const OVERLAYS = {
     '.kkkkkkkkkkkkk..',
   ], 0, 6),
 };
+
+// Upgrade the whole tile library to hi-res: 2x size, rounded contours.
+// Renderers draw these at logical 16px, which maps to full device detail.
+for (const k of Object.keys(TILES)) TILES[k] = scale2x(TILES[k]);
+for (let i = 0; i < TALL_TREES.length; i++) TALL_TREES[i] = scale2x(TALL_TREES[i]);
+for (let i = 0; i < SCATTER.length; i++) SCATTER[i] = scale2x(SCATTER[i]);
+for (const k of Object.keys(OVERLAYS)) OVERLAYS[k] = scale2x(OVERLAYS[k]);

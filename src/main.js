@@ -46,7 +46,11 @@ function frame(now) {
   if (scene) {
     if (Input.pressed('mute')) Audio.toggleMute();
     scene.update(dt);
+    // game logic runs at 240x160; the canvas renders at 480x320 so hi-res
+    // character art can show single-pixel detail
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
     if (Scenes.current) Scenes.current.draw(ctx);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
   Input.endFrame();
   requestAnimationFrame(frame);

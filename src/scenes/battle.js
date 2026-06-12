@@ -604,8 +604,8 @@ Scenes.register('battle', {
     // enemy — bosses loom at 3x with a pulsing aura; mobs stand at 2x
     const art = ENEMY_ART[enemy.art];
     const isBoss = enemy.mechanics.includes('boss');
-    // bosses fill the stage but never hide their heads behind the panel
-    const scale = isBoss ? Math.min(3, 58 / art.height) : Math.min(2, 44 / art.height);
+    // art is pre-scaled hi-res; bosses fill the stage but clear the panel
+    const scale = isBoss ? Math.min(1.5, 58 / art.height) : Math.min(1, 48 / art.height);
     const bob = isBoss ? Math.sin(t * 1.7) * 2 : 0;
     const ew2 = art.width * scale, eh2 = art.height * scale;
     const ex = 160 - ew2 / 2 + (shake > 0 ? rnd(5) - 2 : 0);
@@ -633,8 +633,8 @@ Scenes.register('battle', {
 
     // hiro (detailed battle back-sprite, breathing idle)
     const hx = 26 + (hshake > 0 ? rnd(5) - 2 : 0);
-    const hy = 72 + Math.sin(t * 2) * 1.5 + (hshake > 0 ? rnd(3) - 1 : 0);
-    ctx.drawImage(BATTLE_HIRO, hx, hy, BATTLE_HIRO.width * 2, BATTLE_HIRO.height * 2);
+    const hy = 74 + Math.sin(t * 2) * 1.5 + (hshake > 0 ? rnd(3) - 1 : 0);
+    ctx.drawImage(BATTLE_HIRO, hx, hy, BATTLE_HIRO.width * 0.85, BATTLE_HIRO.height * 0.85);
 
     // enemy panel (wide enough that long boss names never hit the badge)
     panel(ctx, 4, 4, 168, 26);
@@ -653,8 +653,8 @@ Scenes.register('battle', {
 
     // player panel with portrait
     panel(ctx, 140, 86, 96, 40);
-    const face = HIRO.down[0];
-    ctx.drawImage(face, 1, 0, 14, 12, 145, 92, 14, 12);
+    const face = HIRO.down[0]; // hi-res: crop the head at 2x source coords
+    ctx.drawImage(face, 2, 0, 28, 24, 145, 92, 14, 12);
     drawText(ctx, `HIRO LV${Game.s.level}`, 163, 92, '#19d3c5');
     drawText(ctx, `HP ${Game.s.hp}/${Game.s.maxHp}`, 163, 102, Game.s.hp / Game.s.maxHp < 0.3 ? '#ff8a8a' : '#ffffff');
     drawText(ctx, `TP ${Game.s.tp}/${Game.s.maxTp}`, 163, 112, '#b78bff');

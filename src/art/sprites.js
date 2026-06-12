@@ -1,5 +1,5 @@
 // All character art as ASCII pixel grids, compiled to canvases at module load.
-import { compile, mirror, outline } from './palette.js';
+import { compile, mirror, outline, scale2x, shade } from './palette.js';
 
 // ------------------------------------------------- HIRO 16x20 (action suit)
 // Matches the v2 mascot art: big tan quill mane, fierce blue eyes,
@@ -87,7 +87,9 @@ const HIRO_LEFT_B = HIRO_LEFT_A.slice(0, 16).concat([
   '.kkk.....kk.....',
 ]);
 
-function frames(a, b, swap) { return [outline(compile(a, swap)), outline(compile(b, swap))]; }
+// hd: hi-res finishing — rounded contours + top-lit shading
+const hd = (cv) => shade(scale2x(cv));
+function frames(a, b, swap) { return [hd(outline(compile(a, swap))), hd(outline(compile(b, swap)))]; }
 
 export function makeActor(swap = null) {
   const left = frames(HIRO_LEFT_A, HIRO_LEFT_B, swap);
@@ -134,7 +136,7 @@ const BATTLE_HIRO_ART = [
   '..kkkkkk......kkkkkk......',
   '..kkkkk........kkkkk......',
 ];
-export const BATTLE_HIRO = outline(compile(BATTLE_HIRO_ART));
+export const BATTLE_HIRO = shade(scale2x(outline(compile(BATTLE_HIRO_ART))));
 // Shadow clone of Hiro for Doppelganger fights.
 export const DOPPEL_HIRO = makeActor({ s: 'd', h: 'q', Y: 'q', b: 'r', t: 'v', j: 'q', J: 'q' });
 
@@ -317,17 +319,17 @@ const GUARD = [
   '................',
 ];
 export const NPCS = {
-  villager: outline(compile(VILLAGER_M)),
-  villagerRed: outline(compile(VILLAGER_M, { b: 'r', B: 'R', h: 'H' })),
-  villagerGreen: outline(compile(VILLAGER_M, { b: 'g', B: 'G', h: 'D' })),
-  villagerOrange: outline(compile(SHOPKEEP)),
-  villagerTeal: outline(compile(VILLAGER_F, { b: 't', B: 'T', h: 'D' })),
-  villagerPink: outline(compile(VILLAGER_F, { b: 'f', B: 'R', h: 'y' })),
-  elder: outline(compile(ELDER)),
-  kid: outline(compile(KID, { h: 'y', b: 'z', B: 'b' })),
-  clerk: outline(compile(CLERK)),
-  sage: outline(compile(SAGE)),
-  guard: outline(compile(GUARD)),
+  villager: hd(outline(compile(VILLAGER_M))),
+  villagerRed: hd(outline(compile(VILLAGER_M, { b: 'r', B: 'R', h: 'H' }))),
+  villagerGreen: hd(outline(compile(VILLAGER_M, { b: 'g', B: 'G', h: 'D' }))),
+  villagerOrange: hd(outline(compile(SHOPKEEP))),
+  villagerTeal: hd(outline(compile(VILLAGER_F, { b: 't', B: 'T', h: 'D' }))),
+  villagerPink: hd(outline(compile(VILLAGER_F, { b: 'f', B: 'R', h: 'y' }))),
+  elder: hd(outline(compile(ELDER))),
+  kid: hd(outline(compile(KID, { h: 'y', b: 'z', B: 'b' }))),
+  clerk: hd(outline(compile(CLERK))),
+  sage: hd(outline(compile(SAGE))),
+  guard: hd(outline(compile(GUARD))),
 };
 
 // Detailed battle sprites live in enemies.js
@@ -335,8 +337,9 @@ export { ENEMY_ART } from './enemies.js';
 
 
 // --------------------------------------------------- AMBIENT CRITTERS
+const HD_CRITTER = (rows, swap) => hd(compile(rows, swap));
 export const CRITTERS = {
-  bunny: compile([
+  bunny: HD_CRITTER([
     '.k..k.....',
     'knkknk....',
     'knnnnk....',
@@ -346,7 +349,7 @@ export const CRITTERS = {
     '..knn.nnk.',
     '...k...k..',
   ]),
-  bird: compile([
+  bird: HD_CRITTER([
     '..kk....',
     '.kttbk..',
     'kytkttk.',
@@ -355,7 +358,7 @@ export const CRITTERS = {
     '...ktk..',
     '...k.k..',
   ]),
-  crab: compile([
+  crab: HD_CRITTER([
     'k.k....k.k',
     '.kk.kk.kk.',
     '.koooooik.',

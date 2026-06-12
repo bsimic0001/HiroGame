@@ -24,7 +24,7 @@ const { ENEMIES } = await import(join(root, 'src/data/enemies.js'));
 
 const NPC_SPRITES = new Set([
   'villager', 'villagerRed', 'villagerGreen', 'villagerOrange', 'villagerTeal',
-  'villagerPink', 'elder', 'kid', 'clerk', 'sage', 'guard',
+  'villagerPink', 'elder', 'kid', 'clerk', 'clerkF', 'clerkF2', 'sage', 'guard',
 ]);
 const GEAR = new Set(['blade', 'mirror', 'sigil', 'visor', 'armor', 'crown']);
 

@@ -62,7 +62,7 @@ export const MAPS = {
       { id: 'grump', x: 10, y: 11, sprite: 'villagerRed', dialog: { default: 'v_rotate' } },
       { id: 'kid', x: 13, y: 12, sprite: 'kid', dialog: { default: 'v_kid' } },
       { id: 'shopkeep', x: 20, y: 6, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello' } },
-      { id: 'healer', x: 8, y: 6, sprite: 'clerk', action: 'heal', dialog: { default: 'healer' } },
+      { id: 'healer', x: 8, y: 6, sprite: 'clerkF', action: 'heal', dialog: { default: 'healer' } },
       { id: 'sign1', x: 4, y: 7, sprite: null, dialog: { default: 'sign_loginshire' } },
     ],
     portals: [
@@ -129,13 +129,13 @@ export const MAPS = {
       'WWWWWWWWWWWWWWWWWWWWWWWWWW',
     ], 'W'),
     npcs: [
-      { id: 'registrar', x: 12, y: 9, sprite: 'clerk', gear: 'mirror', flag: 'got_mirror',
+      { id: 'registrar', x: 12, y: 9, sprite: 'clerkF2', gear: 'mirror', flag: 'got_mirror',
         dialog: { default: 'registrar', got_mirror: 'registrar2' } },
       { id: 'captain', x: 16, y: 6, sprite: 'guard', dialog: { default: 'captain', boss2: 'captain_after' } },
       { id: 'sus', x: 20, y: 12, sprite: 'villager', battle: 'lazarus',
         pre: 'sus_pre', win: 'sus_win', flag: 'susfight', hideOnFlag: 'susfight' },
-      { id: 'shopkeep2', x: 22, y: 8, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello' } },
-      { id: 'healer2', x: 5, y: 5, sprite: 'clerk', action: 'heal', dialog: { default: 'healer' } },
+      { id: 'shopkeep2', x: 22, y: 8, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello2' } },
+      { id: 'healer2', x: 5, y: 5, sprite: 'clerk', action: 'heal', dialog: { default: 'healer_gate' } },
       { id: 'sign3', x: 4, y: 10, sprite: null, dialog: { default: 'sign_onboarding' } },
       { id: 'newhire', x: 8, y: 11, sprite: 'villagerGreen', dialog: { default: 'v_newhire' } },
     ],
@@ -203,8 +203,8 @@ export const MAPS = {
       { id: 'deskclerk', x: 5, y: 3, sprite: 'clerk', gear: 'sigil', flag: 'got_sigil',
         dialog: { default: 'deskclerk', got_sigil: 'deskclerk2' } },
       { id: 'deskclerk_b', x: 19, y: 3, sprite: 'clerk', action: 'heal', dialog: { default: 'healer_keep' } },
-      { id: 'caller', x: 8, y: 9, sprite: 'villagerPink', dialog: { default: 'v_caller' } },
-      { id: 'shopkeep3', x: 17, y: 9, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello' } },
+      { id: 'caller', x: 8, y: 9, sprite: 'villager', dialog: { default: 'v_caller' } },
+      { id: 'shopkeep3', x: 17, y: 9, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello3' } },
       { id: 'guard_keep', x: 12, y: 10, sprite: 'guard', dialog: { default: 'guard_keep', boss3: 'guard_keep_after' } },
     ],
     portals: [
@@ -270,6 +270,7 @@ export const MAPS = {
     npcs: [
       { id: 'engineer', x: 3, y: 6, sprite: 'villagerTeal', gear: 'visor', flag: 'got_visor',
         dialog: { default: 'engineer', got_visor: 'engineer2' } },
+      { id: 'scout', x: 5, y: 2, sprite: 'villager', dialog: { default: 'v_alex' } },
       { id: 'quartermaster', x: 14, y: 9, sprite: 'guard', gear: 'armor', flag: 'got_armor',
         dialog: { default: 'quartermaster', got_armor: 'quartermaster2' } },
       {
@@ -309,9 +310,10 @@ export const MAPS = {
         dialog: { default: 'sage_crown', got_crown: 'sage_crown2' } },
       { id: 'otis', x: 5, y: 5, sprite: 'villagerGreen', dialog: { default: 'v_otis' } },
       { id: 'banker', x: 19, y: 10, sprite: 'guard', dialog: { default: 'v_banker' } },
-      { id: 'panicked', x: 8, y: 11, sprite: 'villagerPink', dialog: { default: 'v_panic' } },
-      { id: 'shopkeep4', x: 20, y: 5, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello' } },
-      { id: 'healer4', x: 16, y: 7, sprite: 'clerk', action: 'heal', dialog: { default: 'healer' } },
+      { id: 'panicked', x: 8, y: 11, sprite: 'villagerRed', dialog: { default: 'v_panic' } },
+      { id: 'kc', x: 11, y: 11, sprite: 'kid', dialog: { default: 'v_kc' } },
+      { id: 'shopkeep4', x: 20, y: 5, sprite: 'villagerOrange', action: 'shop', dialog: { default: 'shop_hello4' } },
+      { id: 'healer4', x: 16, y: 7, sprite: 'clerkF', action: 'heal', dialog: { default: 'healer_capital' } },
       { id: 'sign5', x: 3, y: 7, sprite: null, dialog: { default: 'sign_capital' } },
     ],
     portals: [

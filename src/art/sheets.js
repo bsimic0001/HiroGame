@@ -41,6 +41,20 @@ export function scaleSheetFrame(frame, factor) {
   return cv;
 }
 
-const NAMES = ['hiro', 'sage', 'villager-red', 'villager-teal', 'kid'];
-const images = await Promise.all(NAMES.map((n) => load(`assets/sprites/${n}.png`)));
+const NAMES = [
+  'hiro', 'sage', 'villager-red', 'villager-teal', 'kid',
+  'suit-woman', 'hoodie-boy', 'doctor', 'robot', 'mouse',
+];
+// Standalone frames (not walk cycles) baked at natural size.
+const SINGLES = ['phisherking'];
+const images = await Promise.all(
+  [...NAMES, ...SINGLES].map((n) => load(`assets/sprites/${n}.png`)),
+);
 export const SHEETS = Object.fromEntries(NAMES.map((n, i) => [n, slice(images[i])]));
+export const FRAMES = Object.fromEntries(SINGLES.map((n, i) => {
+  const img = images[NAMES.length + i];
+  const cv = document.createElement('canvas');
+  cv.width = img.width; cv.height = img.height;
+  cv.getContext('2d').drawImage(img, 0, 0);
+  return [n, cv];
+}));

@@ -1,7 +1,7 @@
 // High-detail battle sprites for the Phantom Legion.
 // Every adversary's design tells you what identity attack it is.
 import { compile, glitchify, scale2x, shade } from './palette.js';
-import { SHEETS } from './sheets.js';
+import { SHEETS, FRAMES, scaleSheetFrame as scaleFrame } from './sheets.js';
 
 // Pixel-art finishing pipeline: double resolution with rounded contours,
 // then bake in top-lit volumetric shading. GBA polish for hand-set pixels.
@@ -178,32 +178,6 @@ const KEYLOGGER = [
   '..kcckkcckkcckkcckkcckkck...........',
   '..kkkkkkkkkkkkkkkkkkkkkkk...........',
 ];
-// TOKEN THIEF 30x30 — hooded snatcher holding a stolen, still-glowing
-// session token, loot bag over the shoulder.
-const TOKENTHIEF = [
-  '.........kkkkkkkk.............',
-  '........kqqqqqqqqk............',
-  '.......kqqqqqqqqqqk...........',
-  '......kqqqqqqqqqqqqk..........',
-  '......kqqekkkkkkeqqk..........',
-  '......kqekwk..kwkeqk..........',
-  '......kqeeeeeeeeeeqk..........',
-  '......kqqeeekkeeeqqk..........',
-  '.......kqqqeeeeqqqk...........',
-  '......kqqqqqqqqqqqqk....kkk...',
-  '.....kqqqqqqqqqqqqqqk..kyzyk..',
-  '....kqqqqqqqqqqqqqqsk.kyzzzyk.',
-  '...kqqqkqqqqqqqkqqssk.kyzzzyk.',
-  '...kqqk.kqqqqqk.kqsk...kyzyk..',
-  '...kqk..kqqqqqk..ss.....kkk...',
-  '...kNNkkqqqqqqqk..............',
-  '..kNNNNkqqqqqqqk..............',
-  '..kNNNNkqqqqqqqk..............',
-  '...kNNk.kqqqqqk...............',
-  '....kk..kqqkqqk...............',
-  '........kqk.kqk...............',
-  '........kk...kk...............',
-];
 // SIM SHIFTER 34x24 — gooey shapeshifter mid-morph, two half-faces,
 // triumphantly holding up a stolen SIM.
 const SIMSHIFT = [
@@ -251,61 +225,6 @@ const STUFFERZOMBIE = [
   '...sss...sss..................',
   '...kkk...kkk..................',
   '..kkkk...kkkk.................',
-];
-// ROGUE AGENT 32x26 — unsanctioned drone: single great eye, claw
-// manipulators, a torn policy seal on its hull.
-const ROGUEAGENT = [
-  '...........kkkkkk...............',
-  '.........kkmmmmmmkk.............',
-  '........kmmmmmmmmmmk............',
-  '.......kmmmkkkkkkmmmk...........',
-  '.......kmmkzzzzzzkmmk...........',
-  '.......kmmkzkkzzzkmmk...........',
-  '.......kmmkzzzzzzkmmk...........',
-  '.......kmmmkkkkkkmmmk...........',
-  '......kmmmmmmmmmmmmmmk..........',
-  '......kmMrkkmmmmmmMmmk..........',
-  '......kmMkrkmmmmmmMmmk..........',
-  '.......kmmmmkkkkmmmmk...........',
-  '....kk.kmmmmmmmmmmmk.kk.........',
-  '...kzzkkmmkmmmmkmmkkzzk.........',
-  '....kk.kmk.kmmk.kmk.kk..........',
-  '.......kk..kmmk..kk.............',
-  '......kmk...kk...kmk............',
-  '.....kmclk......klcmk...........',
-  '.....kkkk........kkkk...........',
-];
-// ------------------------------------------------------------ BOSSES
-// THE PHISHER KING 52x30 — crowned monarch of lures: golden crown,
-// royal cape-fin, jagged teeth, scepter dangling a fake login window.
-const PHISHERKING = [
-  '...............y..y..y......................',
-  '...............kyykyyk......................',
-  '...............kyyyyyk......................',
-  '............kkkqqqqqqkkk....................',
-  '..........kkqqqqqqqqqqqqkk..................',
-  '........kkqqqqqqqqqqqqqqqqkk......kkk.......',
-  '.......kqqqqwwkqqqqqqqdqqqqqk....kqqdk......',
-  '......kqqqqqwwkqqqqqqqqqdqqqqk..kqqddk......',
-  '.....kqqqqqqqqqqqdqqqqqqqqqqqkkqqqddk.......',
-  '....kqdqqqqqqqqqqqqqdqqqqqqqqkqqqddk........',
-  '....kqwkwkwkwkqqqqqqqqqdqqqqqkqqqdk.........',
-  '....kqkwkwkwkwkqqqqqqqqqqqqqqkqqqdk.........',
-  '....kqwkwkwkwkqqqqdqqqqqqqqqkqqqddk.........',
-  '.....kqqqqqqqqqqqqqqqdqqqqqqkkqqddk.........',
-  '......kqqqqqqqqqqqqqqqqqqqkk..kqdk..........',
-  '.......kkqqqqqqqqdqqqqqkkk.....kk...........',
-  '.........kkkqqqqqqqkkkk.....................',
-  '....kk......kkkkkk..........................',
-  '...kqk......................................',
-  '..kqk.......................................',
-  '..kqk.......................................',
-  '..kIIIIIk...................................',
-  '..kIwwwwIk..................................',
-  '..kIwttwIk..................................',
-  '..kIwwwwIk..................................',
-  '..kIIyyIIk..................................',
-  '...kkkkkk...................................',
 ];
 // SCATTERED SPIDER 56x30 — colossal call-center spider, front view filling
 // the whole frame: bulbous abdomen marked with a coiled phone cord, eight
@@ -429,11 +348,11 @@ export const ENEMY_ART = {
   vishimp: polish(compile(VISHIMP)),
   pushbomber: polish(compile(PUSHBOMBER)),
   keylogger: polish(compile(KEYLOGGER)),
-  tokenthief: polish(compile(TOKENTHIEF)),
+  tokenthief: scaleFrame(SHEETS.mouse.down[0], 2), // hoodie mouse, generated sheet
   simshift: polish(compile(SIMSHIFT)),
   stufferzombie: polish(compile(STUFFERZOMBIE)),
-  rogueagent: polish(compile(ROGUEAGENT)),
-  phisherking: polish(compile(PHISHERKING)),
+  rogueagent: scaleFrame(SHEETS.robot.down[0], 2), // ungoverned agent bot, generated sheet
+  phisherking: FRAMES.phisherking, // generated boss frame: presenting the lure
   doppelprime: glitchify(shadowHiro(), 13),
   scatteredspider: polish(compile(SCATTEREDSPIDER)),
   stuffer: polish(compile(STUFFER, { c: 'm', m: 'M' })), // weathered stone

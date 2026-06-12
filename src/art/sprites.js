@@ -313,17 +313,17 @@ const GUARD = [
   '................................',
 ];
 export const NPCS = {
-  villager: shade(outline(compile(VILLAGER_M))),
+  villager: SHEETS['hoodie-boy'].down[0],
   villagerRed: SHEETS['villager-red'].down[0],
   villagerGreen: shade(outline(compile(VILLAGER_M, { b: 'g', B: 'G', h: 'D' }))),
-  villagerOrange: shade(outline(compile(SHOPKEEP))),
+  villagerOrange: SHEETS['hoodie-boy'].down[0],
   villagerTeal: SHEETS['villager-teal'].down[0],
   villagerPink: shade(outline(compile(VILLAGER_F, { b: 'f', B: 'R', h: 'y' }))),
-  elder: shade(outline(compile(ELDER))),
+  elder: SHEETS.doctor.down[0],
   kid: SHEETS.kid.down[0],
   clerk: shade(outline(compile(CLERK))),
-  clerkF: shade(outline(compile(CLERK_F, { b: 't', B: 'T' }))),
-  clerkF2: shade(outline(compile(CLERK_F, { b: 'p', B: 'P', h: 'H' }))),
+  clerkF: SHEETS.doctor.down[0],
+  clerkF2: SHEETS['suit-woman'].down[0],
   sage: SHEETS.sage.down[0],
   guard: shade(outline(compile(GUARD))),
 };

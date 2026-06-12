@@ -17,6 +17,13 @@ const SHEETS = [
   { src: 'villager-red', out: 'villager-red', targetH: 38 },
   { src: 'villager-teal', out: 'villager-teal', targetH: 38 },
   { src: 'kid', out: 'kid', targetH: 32 },
+  { src: 'suit-woman', out: 'suit-woman', targetH: 38 },
+  { src: 'hoodie-boy', out: 'hoodie-boy', targetH: 38 },
+  { src: 'doctor', out: 'doctor', targetH: 36 },
+  { src: 'robot', out: 'robot', targetH: 34 },
+  { src: 'mouse', out: 'mouse', targetH: 38 },
+  // Single battle frame: row 2 col 2 = presenting the glowing lure.
+  { src: 'phisherking', out: 'phisherking', targetH: 56, frame: [2, 2] },
 ];
 const CELL_W = 40, CELL_H = 44;
 
@@ -64,14 +71,17 @@ const results = await page.evaluate(async ({ sheets, CELL_W, CELL_H }) => {
     for (let p = 0; p < W * H; p++) if (seen[p]) d[p * 4 + 3] = 0;
     c.putImageData(id, 0, 0);
 
-    // Slice 4x4, trim, scale, compose.
+    // Slice 4x4, trim, scale, compose. `frame: [row,col]` bakes a single
+    // standalone frame at natural width instead of a uniform-cell sheet.
+    const single = sheet.frame || null;
     const outCv = document.createElement('canvas');
-    outCv.width = CELL_W * 4; outCv.height = CELL_H * 4;
+    if (!single) { outCv.width = CELL_W * 4; outCv.height = CELL_H * 4; }
     const oc = outCv.getContext('2d');
     oc.imageSmoothingEnabled = false;
     const cw = W / 4, ch = H / 4;
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
+        if (single && (row !== single[0] || col !== single[1])) continue;
         const sx = Math.round(col * cw), sy = Math.round(row * ch);
         const CW = Math.floor(cw), CH = Math.floor(ch);
         const cid = c.getImageData(sx, sy, CW, CH);
@@ -113,6 +123,13 @@ const results = await page.evaluate(async ({ sheets, CELL_W, CELL_H }) => {
         const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
         const scale = sheet.targetH / bh;
         const dw = Math.max(1, Math.round(bw * scale)), dh = sheet.targetH;
+        if (single) {
+          outCv.width = dw; outCv.height = dh;
+          const sc = outCv.getContext('2d');
+          sc.imageSmoothingEnabled = false;
+          sc.drawImage(mcv, x0, y0, bw, bh, 0, 0, dw, dh);
+          continue;
+        }
         const dx = col * CELL_W + Math.round((CELL_W - dw) / 2);
         const dy = row * CELL_H + (CELL_H - dh) - 2; // feet 2px above cell bottom
         oc.drawImage(mcv, x0, y0, bw, bh, dx, dy, dw, dh);

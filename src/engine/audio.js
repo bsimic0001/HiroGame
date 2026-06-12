@@ -16,7 +16,10 @@ function parse(str) {
 }
 
 // ----- Songs -----------------------------------------------------------------
-const SONGS = {
+// Channels loop independently, so every channel's total length (in sixteenths)
+// must divide the longest channel's — otherwise they drift apart and clash.
+// scripts/validate.mjs enforces this.
+export const SONGS = {
   title: {
     bpm: 100,
     lead: `A3:4 C4:2 E4:2 A4:4 G4:2 E4:2 F4:4 A4:2 C5:2 E5:6 -:2
@@ -36,7 +39,9 @@ const SONGS = {
     lead: `A4:2 A4:2 C5:2 D5:2 E5:4 E5:2 D5:2 C5:2 D5:2 E5:2 C5:2 A4:6 -:2
            G4:2 G4:2 B4:2 C5:2 D5:4 D5:2 C5:2 B4:2 C5:2 D5:2 B4:2 G4:6 -:2
            F4:2 A4:2 C5:2 F5:2 E5:4 C5:2 A4:2 D5:2 C5:2 B4:2 G4:2 A4:8`,
-    bass: `A2:4 E3:4 A2:4 E3:4 G2:4 D3:4 G2:4 D3:4 F2:4 C3:4 G2:4 E3:4 A2:4 E3:4 A2:8`,
+    bass: `A2:4 E3:4 A2:4 E3:4 A2:4 E3:4 A2:4 E3:4
+           G2:4 D3:4 G2:4 D3:4 G2:4 D3:4 G2:4 D3:4
+           F2:4 C3:4 F2:4 C3:4 G2:4 D3:4 A2:8`,
     noise: `x:2 -:2 x:2 x:2`,
   },
   battle: {
@@ -44,7 +49,7 @@ const SONGS = {
     lead: `E4:2 E4:2 G4:2 E4:2 A4:2 G4:2 E4:2 D4:2 E4:2 E4:2 G4:2 A4:2 B4:4 A4:2 G4:2
            C5:2 B4:2 A4:2 G4:2 A4:2 G4:2 E4:2 D4:2 E4:4 G4:4 E4:4 -:4`,
     bass: `E2:2 E2:2 E3:2 E2:2 E2:2 E3:2 E2:2 E2:2 G2:2 G2:2 G3:2 G2:2 A2:2 A2:2 A3:2 A2:2
-           C3:2 C3:2 C2:2 C3:2 B2:2 B2:2 B1:2 B2:2 E2:2 E2:2 E3:2 E2:2 E2:4 -:2`,
+           C3:2 C3:2 C2:2 C3:2 B2:2 B2:2 B1:2 B2:2 E2:2 E2:2 E3:2 E2:2 E2:4 -:4`,
     noise: `x:2 x:2 X:2 x:2`,
   },
   boss: {
@@ -64,7 +69,7 @@ const SONGS = {
   ending: {
     bpm: 92,
     lead: `C5:4 B4:2 A4:2 G4:4 E4:4 F4:2 G4:2 A4:4 G4:6 -:2
-           E4:2 G4:2 C5:2 E5:2 D5:4 C5:2 B4:2 C5:8 -:4`,
+           E4:2 G4:2 C5:2 E5:2 D5:4 C5:2 B4:2 C5:8 -:8`,
     bass: `C3:8 F2:8 A2:8 G2:8 C3:8 F2:8 G2:8 C3:8`,
     noise: ``,
   },
@@ -73,7 +78,7 @@ const SONGS = {
 // ----- Engine ----------------------------------------------------------------
 let ctx = null;
 let master, musicGain, sfxGain;
-let muted = localStorage.getItem('hiro.muted') === '1';
+let muted = typeof localStorage !== 'undefined' && localStorage.getItem('hiro.muted') === '1';
 let current = null; // { name, channels: [{notes,i,nextTime}], timer }
 
 function ensureCtx() {
@@ -143,7 +148,11 @@ function startSong(name) {
       while (ch.next < horizon) {
         const n = ch.notes[ch.i];
         const dur = n.d * sixteenth;
-        if (n.f) scheduleNote({ kind: ch.kind, f: n.f, tok: n.tok }, ch.next, dur);
+        // After a timer stall (backgrounded tab), pointers lag real time; advance
+        // them silently instead of dumping the backlog of past notes at once.
+        if (n.f && ch.next >= ctx.currentTime - 0.03) {
+          scheduleNote({ kind: ch.kind, f: n.f, tok: n.tok }, ch.next, dur);
+        }
         ch.next += dur;
         ch.i = (ch.i + 1) % ch.notes.length;
       }
@@ -205,7 +214,16 @@ let silentEl = null;
 export const Audio = {
   unlock() {
     if (!ensureCtx()) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    // iOS reports 'interrupted' (not just 'suspended') after calls/route changes.
+    if (ctx.state !== 'running') ctx.resume();
+    // iOS also needs a WebAudio source started inside the gesture itself
+    // before the context renders sound at all.
+    try {
+      const kick = ctx.createBufferSource();
+      kick.buffer = ctx.createBuffer(1, 1, 22050);
+      kick.connect(master);
+      kick.start(0);
+    } catch { /* ignore */ }
     // iOS: route the audio session to 'playback' by looping a silent <audio>,
     // otherwise the physical ring/silent switch mutes all WebAudio.
     if (!silentEl) {

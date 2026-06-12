@@ -117,6 +117,21 @@ for (const [id, e] of Object.entries(ENEMIES)) {
   if (!e.attacks?.length) fail(`enemy ${id}: no attacks`);
 }
 
+// 3b) Song channel sync: channels loop independently, so every channel's total
+//     sixteenths must divide the longest channel's, or they drift and clash.
+const { SONGS } = await import(join(root, 'src/engine/audio.js'));
+for (const [name, song] of Object.entries(SONGS)) {
+  const lens = {};
+  for (const ch of ['lead', 'bass', 'noise']) {
+    if (!song[ch] || !song[ch].trim()) continue;
+    lens[ch] = song[ch].trim().split(/\s+/).reduce((a, t) => a + parseInt(t.split(':')[1] || '1'), 0);
+  }
+  const max = Math.max(...Object.values(lens));
+  for (const [ch, len] of Object.entries(lens)) {
+    if (max % len !== 0) fail(`song ${name}: ${ch} length ${len} does not divide longest channel ${max} (channels will desync)`);
+  }
+}
+
 // 4) Sprite grid sanity: read sprites.js as text, check ASCII grids are rectangles
 import { readFileSync } from 'fs';
 const spriteSrc = readFileSync(join(root, 'src/art/sprites.js'), 'utf8');

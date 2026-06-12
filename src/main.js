@@ -31,8 +31,9 @@ resize();
 Input.init();
 // Keep unlocking on every gesture: mobile browsers can re-suspend the
 // context (tab switch, lock screen), and iOS only resumes in-gesture.
+// Capture phase so D-pad handlers can never swallow the gesture first.
 for (const ev of ['keydown', 'touchstart', 'touchend', 'mousedown']) {
-  window.addEventListener(ev, () => Audio.unlock());
+  window.addEventListener(ev, () => Audio.unlock(), { capture: true, passive: true });
 }
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) Audio.unlock();

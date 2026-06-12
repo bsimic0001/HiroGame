@@ -653,8 +653,8 @@ Scenes.register('battle', {
 
     // player panel with portrait
     panel(ctx, 140, 86, 96, 40);
-    const face = HIRO.down[0]; // hi-res: crop the head at 2x source coords
-    ctx.drawImage(face, 2, 0, 28, 24, 145, 92, 14, 12);
+    const face = HIRO.down[0]; // 40x44 sheet cell: crop the chibi head
+    ctx.drawImage(face, 7, 2, 26, 24, 145, 92, 14, 12);
     drawText(ctx, `HIRO LV${Game.s.level}`, 163, 92, '#19d3c5');
     drawText(ctx, `HP ${Game.s.hp}/${Game.s.maxHp}`, 163, 102, Game.s.hp / Game.s.maxHp < 0.3 ? '#ff8a8a' : '#ffffff');
     drawText(ctx, `TP ${Game.s.tp}/${Game.s.maxTp}`, 163, 112, '#b78bff');

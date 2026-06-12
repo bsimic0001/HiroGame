@@ -562,7 +562,7 @@ Scenes.register('overworld', {
     }
     // player
     const frames = HIRO[Game.s.facing];
-    const frame = moving ? frames[Math.floor(animT * 7) % 2] : frames[0];
+    const frame = moving ? frames[Math.floor(animT * 7) % frames.length] : frames[0];
     drawables.push({
       y: py,
       draw: () => {

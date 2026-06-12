@@ -1,6 +1,7 @@
 // High-detail battle sprites for the Phantom Legion.
 // Every adversary's design tells you what identity attack it is.
 import { compile, glitchify, scale2x, shade } from './palette.js';
+import { SHEETS } from './sheets.js';
 
 // Pixel-art finishing pipeline: double resolution with rounded contours,
 // then bake in top-lit volumetric shading. GBA polish for hand-set pixels.
@@ -403,62 +404,28 @@ const KOBOLD = [
   '....z....................z.............................',
 ];
 
-// Glitched mirror-Hiro for the deepfake fights: a pixel-perfect copy of
-// Hiro's own 32x40 front frame (must stay in sync with HIRO_DOWN_A in
-// sprites.js), palette-swapped to night-purple shadow with red eyes.
-// glitchify() runs AFTER polish so the static is subtle shear, not soup.
-const HIRO_FRONT = [
-  '...........hh.......hh..........',
-  '....hh....hYYh.....hYYh...hh....',
-  '...hYYh..hYYYYh...hYYYYh.hYYh...',
-  '...hYYYhhYYYYYYh.hYYYYYYhYYYh...',
-  '..hYYYYYYYYYYYYYhYYYYYYYYYYYh...',
-  '..hYYYYYYYYYYYYYYYYYYYYYYYYYYh..',
-  '.hYYHYYYYYYYYYYYYYYYYYYYYHYYYh..',
-  '.hYYYYYYYYYYYYYYYYYYYYYYYYYYYh..',
-  '.hYYYYYYYYYYYYYYYYYYYYYYYYYYYh..',
-  '.hYYhsssssssssssssssssssshYYh...',
-  '.hYhssssssssssssssssssssssYYh...',
-  '.hYssssssssssssssssssssssssYh...',
-  '.hYsskkkksssssssssssskkkkssYh...',
-  '.hYsskwwbksssssssssskwwbkssYh...',
-  '.hYsskwbbksssssssssskwbbkssYh...',
-  '.hYsskkkksssssssssssskkkkssYh...',
-  '..hYssssssssskkssssssssssYh.....',
-  '..hYsssssssskssksssssssssYh.....',
-  '...hYssssssssssssssssssYh.......',
-  '...hYYsssskssssssskssssYYh......',
-  '....hYYsssskkkkkkkssssYYh.......',
-  '.....hhYYssssssssssYYhh.........',
-  '.......jjjjjjjjjjjjjjjj.........',
-  '......jjJJjjjjttjjjjJJjj........',
-  '.....jjjjJjjjjttjjjjjJjjj.......',
-  '....kjjjjjjjjjttjjjjjjjjjk......',
-  '....kjjjjjjjjjttjjjjjjjjjk......',
-  '....kjJjjjjjjjttjjjjjjjJjk......',
-  '....kjjjjjjjjjttjjjjjjjjjk......',
-  '....kkjjjjjjjjjjjjjjjjjkk.......',
-  '.....kkjjjjjjjjjjjjjjjkk........',
-  '......jjjjjjjjjjjjjjjj..........',
-  '......jjjjjjj..jjjjjjj..........',
-  '......jjjjjjj..jjjjjjj..........',
-  '......jjjjjj....jjjjjj..........',
-  '......jjjjjj....jjjjjj..........',
-  '.....kkkkkkk....kkkkkkk.........',
-  '.....kkkkkk......kkkkkk.........',
-  '....kkkkkkk......kkkkkkk........',
-  '................................',
-];
-// Quills/outline go night-purple, face dim violet, eye irises red,
-// suit stays shadow-dark with violet zip.
-const DOPPEL_SWAP = { Y: 'q', h: 'k', H: 'P', s: 'd', b: 'r', t: 'v', j: 'q', J: 'd' };
+// Glitched mirror-Hiro for the deepfake fights: Hiro's own front frame
+// from the baked walk-cycle sheet, washed in night purple, then glitched.
+// drawImage/fill only — no pixel reads, so it stays file:// safe.
+function shadowHiro() {
+  const src = SHEETS.hiro.down[0];
+  const cv = document.createElement('canvas');
+  cv.width = src.width * 2; cv.height = src.height * 2;
+  const c = cv.getContext('2d');
+  c.imageSmoothingEnabled = false;
+  c.drawImage(src, 0, 0, cv.width, cv.height);
+  c.globalCompositeOperation = 'source-atop';
+  c.fillStyle = 'rgba(42,27,78,0.62)'; // deep night purple wash
+  c.fillRect(0, 0, cv.width, cv.height);
+  return cv;
+}
 
 export const ENEMY_ART = {
   phishkoi: polish(compile(PHISHKOI)),
   spearphish: polish(compile(SPEARPHISH)),
   angler: polish(compile(ANGLER)),
   lazarus: polish(compile(LAZARUS)),
-  doppel: glitchify(polish(compile(HIRO_FRONT, DOPPEL_SWAP)), 7),
+  doppel: glitchify(shadowHiro(), 7),
   vishimp: polish(compile(VISHIMP)),
   pushbomber: polish(compile(PUSHBOMBER)),
   keylogger: polish(compile(KEYLOGGER)),
@@ -467,7 +434,7 @@ export const ENEMY_ART = {
   stufferzombie: polish(compile(STUFFERZOMBIE)),
   rogueagent: polish(compile(ROGUEAGENT)),
   phisherking: polish(compile(PHISHERKING)),
-  doppelprime: glitchify(polish(compile(HIRO_FRONT, DOPPEL_SWAP)), 13),
+  doppelprime: glitchify(shadowHiro(), 13),
   scatteredspider: polish(compile(SCATTEREDSPIDER)),
   stuffer: polish(compile(STUFFER, { c: 'm', m: 'M' })), // weathered stone
   kobold: polish(compile(KOBOLD)),

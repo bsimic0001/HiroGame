@@ -1,6 +1,7 @@
 import { Input } from './engine/input.js';
 import { Audio } from './engine/audio.js';
 import { Scenes } from './engine/scenes.js';
+import { drawBrand } from './art/logo.js';
 import './scenes/title.js';
 import './scenes/overworld.js';
 import './scenes/battle.js';
@@ -16,8 +17,9 @@ ctx.imageSmoothingEnabled = false;
 
 function resize() {
   const isTouch = document.body.classList.contains('touch');
-  const availW = window.innerWidth - 16;
-  const availH = window.innerHeight - (isTouch ? 8 : 72); // reserve room for the controls bar
+  const availW = window.innerWidth - 16 - 28; // frame padding + border
+  // reserve room for the controls bar, frame, and the brand plaque overhang
+  const availH = window.innerHeight - (isTouch ? 8 : 72) - 46;
   let scale = Math.floor(Math.min(availW / W, availH / H));
   // Small screens (phones): fill with non-integer scale rather than stay tiny
   if (scale < 2) scale = Math.min(availW / W, availH / H);
@@ -27,6 +29,7 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 resize();
+drawBrand(document.getElementById('brand'));
 
 Input.init();
 // Keep unlocking on every gesture: mobile browsers can re-suspend the

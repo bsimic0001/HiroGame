@@ -25,13 +25,34 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px;
   }
+  /* Branded frame: the cabinet bezel around the screen, with the
+     "A HYPR GAME" pixel plaque riding its top edge. */
+  #frame {
+    position: relative;
+    padding: 12px;
+    background: linear-gradient(180deg, #1c1238 0%, #150d2b 100%);
+    border: 2px solid #3c2a6e;
+    border-radius: 10px;
+    box-shadow: 0 0 60px rgba(106, 61, 240, 0.25), 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+  #brand {
+    position: absolute; top: 0; left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 5px 14px;
+    background: #150d2b;
+    border: 2px solid #3c2a6e;
+    border-radius: 8px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+  }
   #game {
+    display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     background: #000;
-    border: 2px solid #3c2a6e;
-    border-radius: 4px;
-    box-shadow: 0 0 60px rgba(106, 61, 240, 0.25), 0 8px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid #2a1d52;
+    border-radius: 3px;
   }
   /* Controls guide (keyboard) */
   #controls {
@@ -70,7 +91,10 @@
 </head>
 <body>
   <div id="stage">
-    <canvas id="game" width="480" height="320"></canvas>
+    <div id="frame">
+      <canvas id="brand"></canvas>
+      <canvas id="game" width="480" height="320"></canvas>
+    </div>
     <div id="controls">
       <span><kbd>&#8592;&#8593;&#8595;&#8594;</kbd>/<kbd>WASD</kbd> Move</span>
       <span><kbd>Z</kbd>/<kbd>Enter</kbd> Confirm &middot; Talk</span>
